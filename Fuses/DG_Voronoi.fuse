@@ -1,0 +1,319 @@
+--[[
+  Voronoi.fuse
+  Converted from Nuke Blink script originally by Ivan Busquets (Aug 2013)
+  Modified for DasGrain by Fabian Holtz (Apr 2019)
+  Converted to Fusion DCTL Fuse - Jacob Danell, Ember Light
+  Added additonal Perlin Noise to edges (May 2025) - Andrew Buckley
+  Perlin Noise based on Zipped Tutorial (https://www.youtube.com/watch?v=kCIaHqb60Cw)
+]]
+
+local version = "0.2"
+local authorText = "v" .. version .. " - Created by Jacob Danell, Ember Light. Modified by Andrew Buckley"
+
+
+FuRegisterClass("Voronoi", CT_SourceTool, {
+    REGS_Name              = "DG_Voronoi",
+    REGS_Category          = "Gen",
+    REGS_OpIconString      = "DG_VRN",
+    REGS_OpDescription     = "Voronoi Noise Generator, with edge distortion, for use with Das Grain Fusion",
+    REGS_Company           = "",
+    REGS_URL               = "",
+
+    REG_NoObjMatCtrls      = true,
+    REG_NoMotionBlurCtrls  = true,
+
+    REG_Source_GlobalCtrls = true,
+    REG_Source_SizeCtrls   = true,
+    REG_Source_AspectCtrls = true,
+    REG_Source_DepthCtrls  = true,
+    REG_OpNoMask           = false,
+    REG_Fuse_NoEdit        = false,
+    REG_Fuse_NoReload      = false,
+
+    REG_Version            = 10,
+})
+
+function Create()
+    -- Input parameters
+    InFrequency = self:AddInput("Frequency", "Frequency", {
+        LINKID_DataType = "Number",
+        INPID_InputControl = "SliderControl",
+        INP_Default = 50.0,
+        INP_MinAllowed = 1.0,
+        INP_MinScale = 1.0,
+        INP_MaxScale = 500.0,
+    })
+
+    InEdgeFrequency = self:AddInput("Edge Frequency", "EdgeFrequency", {
+        LINKID_DataType = "Number",
+        INPID_InputControl = "SliderControl",
+        INP_Default = 50.0,
+        INP_MinAllowed = 1.0,
+        INP_MinScale = 1.0,
+        INP_MaxScale = 500.0,
+    })
+
+    InEdge = self:AddInput("Edge Distortion", "Edge", {
+        LINKID_DataType = "Number",
+        INPID_InputControl = "SliderControl",
+        INP_Default = 0.0,
+        INP_MinAllowed = 0.0,
+        INP_MinScale = 0.0,
+        INP_MaxScale = 1.0,
+    })
+
+    InAspectRatio = self:AddInput("Aspect Ratio", "AspectRatio", {
+        LINKID_DataType = "Number",
+        INPID_InputControl = "SliderControl",
+        INP_Default = 1.0,
+        INP_MinAllowed = 0.1,
+        INP_MinScale = 0.1,
+        INP_MaxScale = 10.0,
+    })
+
+    InSeed = self:AddInput("Seed", "Seed", {
+        LINKID_DataType = "Number",
+        INPID_InputControl = "SliderControl",
+        INP_Default = 0,
+        INP_Integer = true,
+        INP_MinAllowed = 0,
+        INP_MinScale = 0,
+        INP_MaxScale = 1000,
+    })
+
+    InRandomness = self:AddInput("Randomness", "Randomness", {
+        LINKID_DataType = "Number",
+        INPID_InputControl = "SliderControl",
+        INP_Default = 0.5,
+        INP_MinAllowed = 0.0,
+        INP_MinScale = 0.0,
+        INP_MaxScale = 1.0,
+    })
+
+    self:AddInput(" ", "sepAuth", {
+        INPID_InputControl = "SeparatorControl",
+    })
+
+    Author = self:AddInput(authorText, "Author", {
+        LINKID_DataType    = "Text",
+        INPID_InputControl = "LabelControl",
+        INP_External       = false,
+        INP_Passive        = true,
+        IC_NoLabel         = true,
+        IC_NoReset         = true,
+        LBLC_LabelColor    = 1,
+    })
+
+    -- Add output
+    OutImage = self:AddOutput("Output", "Output", {
+        LINKID_DataType = "Image",
+        LINK_Main = 1,
+    })
+end
+
+function Process(req)
+    local realwidth = Width;
+    local realheight = Height;
+    Width = Width / Scale
+    Height = Height / Scale
+    Scale = 1
+    local imgattrs = {
+        IMG_Document = self.Comp,
+        IMG_Width = Width,
+        IMG_Height = Height,
+        IMG_XScale = XAspect,
+        IMG_YScale = YAspect,
+        IMAT_OriginalWidth = realwidth,
+        IMAT_OriginalHeight = realheight,
+        IMG_Quality = not req:IsQuick(),
+        IMG_MotionBlurQuality = not req:IsNoMotionBlur(),
+    }
+    if not req:IsStampOnly() then
+        imgattrs.IMG_ProxyScale = 1
+    end
+    if SourceDepth ~= 0 then
+        imgattrs.IMG_Depth = SourceDepth
+    end
+
+    local img = Image(imgattrs)
+    local out = Image { IMG_Like = img, IMG_DeferAlloc = true }
+
+    -- Update parameters
+    local node = DVIPComputeNode(req, "VoronoiNoiseKernel", VoronoiNoiseKernel, "VoronoiNoiseParams", VoronoiNoiseParams)
+    local params = node:GetParamBlock(VoronoiNoiseParams)
+
+    params.seed = InSeed:GetValue(req).Value
+    params.edge = InEdge:GetValue(req).Value
+    params.frequency = InFrequency:GetValue(req).Value
+    params.edgefrequency = InEdgeFrequency:GetValue(req).Value
+    params.aspect_ratio = InAspectRatio:GetValue(req).Value
+    params.randomness = InRandomness:GetValue(req).Value
+    params.height = Height
+    params.width = Width
+
+    node:SetParamBlock(params)
+    node:AddOutput("dst", out)
+
+    local ok = node:RunSession(req)
+    if not ok then
+        dst = nil
+        dump(node:GetErrorLog())
+    end
+
+    OutImage:Set(req, out)
+    collectgarbage()
+end
+
+VoronoiNoiseParams = [[
+        float seed;
+        float edge;
+        float frequency;
+        float edgefrequency;
+        float aspect_ratio;
+        float randomness;
+        float width;
+        float height;
+]]
+
+VoronoiNoiseKernel = [[
+#define X_NOISE_GEN  1619
+#define Y_NOISE_GEN  31337
+#define Z_NOISE_GEN  6971
+#define SEED_NOISE_GEN  1013
+#define SQRT_3 1.73205081
+
+__DEVICE__ float2 randomGradient(int ix, int iy, int sd) {
+    // no precomputeded gradients mean this works for any number of grid coordinates
+    const unsigned w = 8 * sizeof(unsigned);
+    const unsigned s = w /2;
+    unsigned a = ix, b = iy;
+    a *= 3284157443;
+
+    b ^= a << s | a >> w - s;
+    b *= 1911520717;
+
+    a ^= b<< s | b >> w - s;
+    a *= 2048419325 * sd;
+    float random = a * (3.14159265 / ~(~0u >> 1)); // in [0, 2*Pi]
+
+    // create the vector from the angle
+    float2 v;
+    v.x = sin(random);
+    v.y = cos(random);
+
+    return v;
+}
+
+__DEVICE__ float dotGridGradient(int ix, int iy, float x, float y, int seed) {
+    //get gradient from integer coorinates
+    float2 gradient = randomGradient(ix, iy, seed);
+
+    // compute the disntance vector
+    float dx = x - (float)ix;
+    float dy = y - (float)iy;
+
+    // compute the dot-product
+    return (dx * gradient.x + dy * gradient.y);
+}
+
+__DEVICE__ float interpolate(float a0, float a1, float w) {
+    // cubic interpolation
+    return (a1 -a0) * (3.0 - w * 2.0) * w * w + a0;
+}
+
+__DEVICE__ float perlin(float x, float y, int seed) {
+    int x0 = (int)x;
+    int y0 = (int)y;
+    int x1 = x0 + 1;
+    int y1 = y0 + 1;
+
+    // Compute Interpolation weights
+    float sx = x - (float)x0;
+    float sy = y - (float)y0;
+
+    // Compute and interpolate top two corners
+    float n0 = dotGridGradient(x0, y0, x, y, seed);
+    float n1 = dotGridGradient(x1, y0, x, y, seed);
+    float ix0 = interpolate(n0, n1, sx);
+
+    // Compute and interpolate top two corners
+    n0 = dotGridGradient(x0, y1, x, y, seed);
+    n1 = dotGridGradient(x1, y1, x, y, seed);
+    float ix1 = interpolate(n0, n1, sx);
+
+    // final step: interpolate between the two previously interpolated values, now in y
+    float value = interpolate(ix0, ix1, sy);
+    
+    return value;
+}
+
+__DEVICE__ int IntValueNoise3D(int x, int y, int z, int seed) {
+    // All constants are primes and must remain prime for this noise function to work correctly
+    int n = (X_NOISE_GEN * x + Y_NOISE_GEN * y + Z_NOISE_GEN * z + SEED_NOISE_GEN * seed) & 0x7fffffff;
+    n = (n >> 13) ^ n;
+    return (n * (n * n * 60493 + 19990303) + 1376312589) & 0x7fffffff;
+}
+
+__DEVICE__ float ValueNoise3D(int x, int y, int z, int seed) {
+    return 1.0f - ((float)IntValueNoise3D(x, y, z, seed) / 1073741824.0f);
+}
+
+__KERNEL__ void VoronoiNoiseKernel(
+    __CONSTANTREF__ VoronoiNoiseParams *params,
+    __TEXTURE2D_WRITE__ dst
+) {
+    DEFINE_KERNEL_ITERATORS_XY(x, y);
+    // edge noise frequency
+    float xSample = x * params->aspect_ratio * params->edgefrequency / params->width;
+    float ySample = y * params->edgefrequency / params->width ;
+    
+    // edge noise sample
+    float xNoise = (perlin(xSample, ySample, params->seed+1) ) * params->edge;
+    float yNoise = (perlin(xSample, ySample, params->seed+23) ) * params->edge;
+
+    // voronoi resolution plus the noise for offsetting the position
+    float xCoord = xNoise + x * params->aspect_ratio * params->frequency / params->width;
+    float yCoord = yNoise + y * params->frequency / params->width ;
+
+    int xInt = (xCoord > 0.0f) ? (int)xCoord : (int)xCoord - 1;
+    int yInt = (yCoord > 0.0f) ? (int)yCoord : (int)yCoord - 1;
+
+    float minDist = 2147483647.0f;
+    float xCandidate = 0.0f;
+    float yCandidate = 0.0f;
+    float dist;
+
+    for (int yCur = yInt - 2; yCur <= yInt + 2; yCur++) {
+        for (int xCur = xInt - 2; xCur <= xInt + 2; xCur++) {
+            
+            // Calculate the position and distance to the seed point inside of
+            // this unit cube. Limited by the randomness value
+            float xPos = xCur + (ValueNoise3D(xCur, yCur, 0, params->seed) + 1.0f)
+                        * params->randomness + (1.0f - params->randomness) - 1.0f ;
+            float yPos = yCur + (ValueNoise3D(xCur, yCur, 0, params->seed + 1) + 1.0f)
+                        * params->randomness + (1.0f - params->randomness) - 1.0f;
+
+            float xDist = xPos - xCoord;
+            float yDist = yPos - yCoord;
+            dist = xDist * xDist + yDist * yDist;
+
+            if (dist < minDist) {
+                // This seed point is closer than any others found so far, so record it
+                minDist = dist;
+                xCandidate = xPos;
+                yCandidate = yPos;
+                
+            }
+        }
+    }
+
+    // Output the result
+    float4 result;
+    result.x = xCandidate / params->aspect_ratio / params->frequency;
+    result.y = yCandidate / params->height * params->width / params->frequency;
+    result.z = 0.0f;
+    result.w = 1.0f;
+
+    _tex2DVec4Write(dst, x, y, result);
+}
+]]

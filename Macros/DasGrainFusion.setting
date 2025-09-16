@@ -1,0 +1,2482 @@
+--[[-- 
+https://au.linkedin.com/in/andrew-buckley-6a54705b
+Written by : Andrew Buckley
+Written on : June, 2025
+version 0.67
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+--]]--
+
+
+{
+	Tools = ordered() {
+		DasGrainFusion_V_0_67 = MacroOperator {
+			Inputs = ordered() {
+				CompInput= InstanceInput {
+					SourceOp = "Comp_Input",
+					Source = "Input",
+					Name = "Comp Input",
+				},
+				PlateInput = InstanceInput {
+					SourceOp = "Plate_Input",
+					Source = "Input",
+					Name = "Plate Raw Input",
+				},
+				DegrainedInput = InstanceInput {
+					SourceOp = "Denoised_Input",
+					Source = "Input",
+					Name = "Plate Denoised Input",
+				},
+				EffectMask = InstanceInput {
+					SourceOp = "KeyMix",
+					Source = "EffectMask",
+				},
+				Diag = InstanceInput {
+					SourceOp = "Controls",
+					Source = "Diagnostic",
+					Page = "Controls",
+				},
+				Divider1 = InstanceInput {
+					SourceOp = "Controls",
+					Source = "Separator1",
+					Page = "Controls",
+				},
+				InputDepth = InstanceInput {
+					SourceOp = "depth",
+					Source = "Depth",
+					Page = "Controls",
+				},
+				Divider2 = InstanceInput {
+					SourceOp = "Controls",
+					Source = "Separator1",
+					Page = "Controls"
+				},
+				InputColorSpace = InstanceInput {
+					SourceOp = "InputColorSpaceTransform",
+					Source = "InputColorSpace",
+					Page = "Controls",
+				},
+				InputGamma = InstanceInput {
+					SourceOp = "InputColorSpaceTransform",
+					Source = "InputGamma",
+					Page = "Controls",
+				},
+				OutputColorSpace = InstanceInput {
+					SourceOp = "InputColorSpaceTransform",
+					Source = "OutputColorSpace",
+					Page = "Controls",
+				},
+				OutputGamma = InstanceInput {
+					SourceOp = "InputColorSpaceTransform",
+					Source = "OutputGamma",
+					Page = "Controls",
+				},
+				Divider3 = InstanceInput {
+					SourceOp = "Controls",
+					Source = "Separator1",
+					Page = "Controls",
+				},
+				NSamples = InstanceInput {
+					SourceOp = "Controls",
+					Source = "NumberOfSamples",
+					Default = 20,
+					Page = "Controls",
+				},
+				NFrames= InstanceInput {
+					SourceOp = "Controls",
+					Source = "NumberOfFrames",
+					Default = 10,
+					Page = "Controls",
+				},
+				FRangeIn = InstanceInput {
+					SourceOp = "Controls",
+					Source = "FrameRangeIn",
+					ControlGroup = 25,
+					Page = "Controls",
+				},
+				FRangeOut = InstanceInput {
+					SourceOp = "Controls",
+					Source = "FrameRangeOut",
+					ControlGroup = 25,
+					Page = "Controls",
+				},
+				FRBtn = InstanceInput {
+					SourceOp = "Controls",
+					Source = "SetRange",
+					Page = "Controls",
+				},
+				ABtn = InstanceInput {
+					SourceOp = "Controls",
+					Source = "Analyse",
+					Page = "Controls",
+				},
+				ReplaceChk = InstanceInput {
+					SourceOp = "Controls",
+					Source = "Replace",
+					Page = "Replace",
+				},
+				SCenter = InstanceInput {
+					SourceOp = "Sample_square",
+					Source = "Center",
+					Page = "Replace",
+				},
+				SWidth= InstanceInput {
+					SourceOp = "Sample_square",
+					Source = "Width",
+					Default = 0.08,
+					Page = "Replace",
+				},
+				SHeight = InstanceInput {
+					SourceOp = "Sample_square",
+					Source = "Height",
+					Default = 0.08,
+					Page = "Replace",
+				},
+				Divider4 = InstanceInput {
+					SourceOp = "Controls",
+					Source = "Separator2",
+					Page = "Replace",
+				},
+				RefFrame = InstanceInput {
+					SourceOp = "Controls",
+					Source = "ReferenceFrame",
+					Default = 1,
+					Page = "Replace",
+				},
+				FBtn = InstanceInput {
+					SourceOp = "Controls",
+					Source = "SetFrame",
+					Page = "Replace",
+				},
+				Divider5 = InstanceInput {
+					SourceOp = "Controls",
+					Source = "Separator3",
+					Page = "Replace",
+				},
+				OverlayChk = InstanceInput {
+					SourceOp = "Controls",
+					Source = "OverlayCellPattern",
+					Page = "Replace",
+				},
+				VoronoiFreq = InstanceInput {
+					SourceOp = "DG_Voronoi",
+					Source = "Frequency",
+					Default = 100,
+					Page = "Replace",
+				},
+				EdgeAmp = InstanceInput {
+					SourceOp = "DG_Voronoi",
+					Source = "Edge",
+					Default = 0.15,
+					Page = "Replace",
+				},
+				EdgeFreq = InstanceInput {
+					SourceOp = "DG_Voronoi",
+					Source = "EdgeFrequency",
+					Default = 500,
+					Page = "Replace",
+				},
+				LUTRed = InstanceInput {
+					SourceOp = "GrainResponse",
+					Source = "Red",
+					ControlGroup = 6,
+					Page = "Adjust",
+				},
+				LUTGreen = InstanceInput {
+					SourceOp = "GrainResponse",
+					Source = "Green",
+					ControlGroup = 6,
+					Page = "Adjust",
+				},
+				LUTBlue = InstanceInput {
+					SourceOp = "GrainResponse",
+					Source = "Blue",
+					ControlGroup = 6,
+					Page = "Adjust",
+				}
+			},
+			Outputs = {
+				Output = InstanceOutput {
+					SourceOp = "Merge_diagnostic",
+					Source = "Output",
+				}
+			},
+			ViewInfo = GroupInfo {
+				Pos = { -738.566, -368.498 },
+				Flags = {
+					ConnectedSnap = true,
+					AutoSnap = true,
+					RemoveRouters = true
+				},
+				Size = { 3734.89, 1298.09, 1347.45, 229.946 },
+				Direction = "Horizontal",
+				PipeStyle = "Direct",
+				Scale = 1,
+				Offset = { 0, 0 }
+			},
+			Tools = ordered() {
+				InputColorSpaceTransform = ColorSpaceTransform {
+					CtrlWZoom = false,
+					CtrlWShown = false,
+					NameSet = true,
+					Inputs = {
+						InputColorSpace = Input { Value = FuID { "ACES_AP1_COLORSPACE" }, },
+						OutputColorSpace = Input { Value = FuID { "ALEXA3_COLORSPACE" }, },
+						ToneMappingMethod = Input { Value = FuID { "TM_NONE" }, },
+						SrcLumMax = Input { Disabled = true, },
+						DstLumMax = Input { Disabled = true, },
+						Advanced = Input { Value = 0, },
+						UseWhitePointAdaptation = Input { Value = 0, },
+						PreDividePostMultiply = Input { Value = 0, },
+						Input = Input {
+							SourceOp = "depth",
+							Source = "Output",
+						}
+					},
+					ViewInfo = OperatorInfo { Pos = { -967.431, 114.427 } },
+					Version = 1
+				},
+				depth = ChangeDepth {
+					NameSet = true,
+					Inputs = {
+						NoiseSample = Input {
+							Value = Number {
+								Value = 1
+							},
+						},
+						RefineGrain = Input {
+							Value = Number {
+								Value = 1
+							},
+						},
+						GrainBlur = Input {
+							Value = Number {
+								Value = 1
+							},
+						},
+						Depth = Input { Value = 3, },
+						Input = Input {
+							SourceOp = "Comp_Input",
+							Source = "Output",
+						}
+					},
+					ViewInfo = OperatorInfo { Pos = { -1135.94, 114.427 } },
+				},
+				Comp_Input = PipeRouter {
+					CtrlWShown = false,
+					NameSet = true,
+					Inputs = {
+						Input = Input {
+							SourceOp = "Loader8_1",
+							Source = "Output",
+						}
+					},
+					ViewInfo = PipeRouterInfo { Pos = { -1292.47, 115.377 } },
+				},
+				Dot8 = PipeRouter {
+					CtrlWShown = false,
+					NameSet = true,
+					Inputs = {
+						Input = Input {
+							SourceOp = "Dot10",
+							Source = "Output",
+						}
+					},
+					ViewInfo = PipeRouterInfo { Pos = { -878.521, 7.92712 } },
+				},
+				Dot10 = PipeRouter {
+					CtrlWShown = false,
+					NameSet = true,
+					Inputs = {
+						Input = Input {
+							SourceOp = "InputColorSpaceTransform",
+							Source = "Output",
+						}
+					},
+					ViewInfo = PipeRouterInfo { Pos = { -899.26, 114.427 } },
+				},
+				GrainResponse = ColorCurves {
+					PickColor = true,
+					CtrlWShown = false,
+					NameSet = true,
+					Inputs = {
+						EditAlpha = Input { Value = 0, },
+						Red = Input {
+							SourceOp = "GrainResponseRed",
+							Source = "Value",
+						},
+						Green = Input {
+							SourceOp = "GrainResponseGreen",
+							Source = "Value",
+						},
+						Blue = Input {
+							SourceOp = "GrainResponseBlue",
+							Source = "Value",
+						},
+						Alpha = Input {
+							SourceOp = "GrainResponseAlpha",
+							Source = "Value",
+						},
+						NumberOfSamplesOnMatchCurve = Input { Value = 64, },
+						IgnoreTransparent = Input { Value = 1, },
+						Input = Input {
+							SourceOp = "Dot10",
+							Source = "Output",
+						}
+					},
+					ViewInfo = OperatorInfo { Pos = { -711.567, 113.758 } },
+					Tools = {
+						GrainResponseRed = LUTBezier {
+							KeyColorSplines = {
+								[0] = {
+									[0] = { 0, RH = { 0.333333333333333, 0.333333333333333 }, Flags = { Linear = true } },
+									[1] = { 1, LH = { 0.666666666666667, 0.666666666666667 }, Flags = { Linear = true } }
+								}
+							},
+							SplineColor = { Red = 255, Green = 52, Blue = 52 },
+							CtrlWZoom = false,
+							NameSet = true,
+						},
+						GrainResponseGreen = LUTBezier {
+							KeyColorSplines = {
+								[0] = {
+									[0] = { 0, RH = { 0.333333333333333, 0.333333333333333 }, Flags = { Linear = true } },
+									[1] = { 1, LH = { 0.666666666666667, 0.666666666666667 }, Flags = { Linear = true } }
+								}
+							},
+							SplineColor = { Red = 0, Green = 255, Blue = 0 },
+							CtrlWZoom = false,
+							NameSet = true,
+						},
+						GrainResponseAlpha = LUTBezier {
+							KeyColorSplines = {
+								[0] = {
+									[0] = { 0, Flags = { Linear = true } }
+								}
+							},
+							SplineColor = { Red = 204, Green = 204, Blue = 204 },
+							CtrlWZoom = false,
+						},
+						GrainResponseBlue = LUTBezier {
+							KeyColorSplines = {
+								[0] = {
+									[0] = { 0, RH = { 0.333333333333333, 0.333333333333333 }, Flags = { Linear = true } },
+									[1] = { 1, LH = { 0.666666666666667, 0.666666666666667 }, Flags = { Linear = true } }
+								}
+							},
+							SplineColor = { Red = 68, Green = 68, Blue = 255 },
+							CtrlWZoom = false,
+							NameSet = true,
+						}
+					},
+				},
+				Instance_GResponse = ColorCurves {
+					PickColor = true,
+					NameSet = true,
+					SourceOp = "GrainResponse",
+					Inputs = {
+						EffectMask = Input {
+						},
+						SettingsNest = Input {
+						},
+						LayersNest = Input {
+						},
+						ReferenceNest = Input {
+						},
+						MatchReference = Input {
+						},
+						SampleReference = Input {
+						},
+						Input = Input {
+							SourceOp = "Dot",
+							Source = "Output",
+						},
+						ReferenceImage = Input {
+						},
+						MatchMask = Input {
+						},
+						CommentsNest = Input {
+						},
+						FrameRenderScriptNest = Input {
+						},
+						StartRenderScripts = Input {
+						},
+						EndRenderScripts = Input {
+						}
+					},
+					ViewInfo = OperatorInfo { Pos = { -707.954, 368.754 } },
+				},
+				NomaliseGrain = Custom {
+					NameSet = true,
+					Inputs = {
+						ProcessAlpha = Input { Value = 0, },
+						LUTIn1 = Input {
+							SourceOp = "NomaliseGrainLUTIn1",
+							Source = "Value",
+						},
+						LUTIn2 = Input {
+							SourceOp = "NomaliseGrainLUTIn2",
+							Source = "Value",
+						},
+						LUTIn3 = Input {
+							SourceOp = "NomaliseGrainLUTIn3",
+							Source = "Value",
+						},
+						LUTIn4 = Input {
+							SourceOp = "NomaliseGrainLUTIn4",
+							Source = "Value",
+						},
+						RedExpression = Input { Value = "r1 *(0.01/r2)", },
+						GreenExpression = Input { Value = "g1 *(0.01/g2)", },
+						BlueExpression = Input { Value = "b1 *(0.01/b2)", },
+						AlphaExpression = Input {
+							Value = Text {
+							},
+						},
+						ShowNumber1 = Input { Value = 0, },
+						ShowNumber2 = Input { Value = 0, },
+						ShowNumber3 = Input { Value = 0, },
+						ShowNumber4 = Input { Value = 0, },
+						ShowNumber5 = Input { Value = 0, },
+						ShowNumber6 = Input { Value = 0, },
+						ShowNumber7 = Input { Value = 0, },
+						ShowNumber8 = Input { Value = 0, },
+						ShowPoint1 = Input { Value = 0, },
+						ShowPoint2 = Input { Value = 0, },
+						ShowPoint3 = Input { Value = 0, },
+						ShowPoint4 = Input { Value = 0, },
+						ShowLUT1 = Input { Value = 0, },
+						ShowLUT2 = Input { Value = 0, },
+						ShowLUT3 = Input { Value = 0, },
+						ShowLUT4 = Input { Value = 0, },
+						Image1 = Input {
+							SourceOp = "subtract",
+							Source = "Output",
+						},
+						Image2 = Input {
+							SourceOp = "Instance_GResponse",
+							Source = "Output",
+						}
+					},
+					ViewInfo = OperatorInfo { Pos = { -389.194, 368.754 } },
+				},
+				NomaliseGrainLUTIn1 = LUTBezier {
+					KeyColorSplines = {
+						[0] = {
+							[0] = { 0, RH = { 0.333333333333333, 0.333333333333333 }, Flags = { Linear = true } },
+							[1] = { 1, LH = { 0.666666666666667, 0.666666666666667 }, Flags = { Linear = true } }
+						}
+					},
+					SplineColor = { Red = 204, Green = 0, Blue = 0 },
+					CtrlWZoom = false,
+				},
+				NomaliseGrainLUTIn2 = LUTBezier {
+					KeyColorSplines = {
+						[0] = {
+							[0] = { 0, RH = { 0.333333333333333, 0.333333333333333 }, Flags = { Linear = true } },
+							[1] = { 1, LH = { 0.666666666666667, 0.666666666666667 }, Flags = { Linear = true } }
+						}
+					},
+					SplineColor = { Red = 0, Green = 204, Blue = 0 },
+					CtrlWZoom = false,
+				},
+				NomaliseGrainLUTIn3 = LUTBezier {
+					KeyColorSplines = {
+						[0] = {
+							[0] = { 0, RH = { 0.333333333333333, 0.333333333333333 }, Flags = { Linear = true } },
+							[1] = { 1, LH = { 0.666666666666667, 0.666666666666667 }, Flags = { Linear = true } }
+						}
+					},
+					SplineColor = { Red = 0, Green = 0, Blue = 204 },
+					CtrlWZoom = false,
+				},
+				NomaliseGrainLUTIn4 = LUTBezier {
+					KeyColorSplines = {
+						[0] = {
+							[0] = { 0, RH = { 0.333333333333333, 0.333333333333333 }, Flags = { Linear = true } },
+							[1] = { 1, LH = { 0.666666666666667, 0.666666666666667 }, Flags = { Linear = true } }
+						}
+					},
+					SplineColor = { Red = 204, Green = 204, Blue = 204 },
+					CtrlWZoom = false,
+				},
+				SampleFrame = TimeStretcher {
+					NameSet = true,
+					Inputs = {
+						SourceTime = Input {
+							Value = 18,
+							Expression = "Controls.ReferenceFrame",
+						},
+						InterpolateBetweenFrames = Input { Value = 0, },
+						SampleSpread = Input { Disabled = true, },
+						Input = Input {
+							SourceOp = "Dot9",
+							Source = "Output",
+						}
+					},
+					ViewInfo = OperatorInfo { Pos = { 90.9248, 418.067 } },
+				},
+				subtract = ChannelBoolean {
+					NameSet = true,
+					Inputs = {
+						Operation = Input { Value = 2, },
+						Background = Input {
+							SourceOp = "Instance_ColorSpaceTransform",
+							Source = "Output",
+						},
+						Foreground = Input {
+							SourceOp = "Dot5",
+							Source = "Output",
+						}
+					},
+					ViewInfo = OperatorInfo { Pos = { -428.207, 720.902 } },
+					Colors = {
+						TileColor = { R = 0.372549019607843, G = 0.6, B = 0.125490196078431 },
+						TextColor = { R = 0.725490196078431, G = 0.690196078431373, B = 0.592156862745098 },
+					}
+				},
+				Instance_ColorSpaceTransform = ColorSpaceTransform {
+					NameSet = true,
+					SourceOp = "InputColorSpaceTransform",
+					Inputs = {
+						EffectMask = Input {
+						},
+						SettingsNest = Input {
+						},
+						LayersNest = Input {
+						},
+						ColorSpaceTransform = Input {
+						},
+						Swap = Input {
+						},
+						ToneMapping = Input {
+						},
+						SrcLumMax = Input {
+							Disabled = true,
+						},
+						DstLumMax = Input {
+							Disabled = true,
+						},
+						GamutMapping = Input {
+						},
+						Advanced = Input {
+						},
+						Input = Input {
+							SourceOp = "Instance_depth",
+							Source = "Output",
+						},
+						CommentsNest = Input {
+						},
+						FrameRenderScriptNest = Input {
+						},
+						StartRenderScripts = Input {
+						},
+						EndRenderScripts = Input {
+						}
+					},
+					ViewInfo = OperatorInfo { Pos = { -961.55, 720.902 } },
+					Version = 1
+				},
+				MinMaxSample = Custom {
+					NameSet = true,
+					Inputs = {
+						ProcessAlpha = Input { Value = 0, },
+						NumberIn1 = Input {
+							SourceOp = "ProbeMin",
+							Source = "Result",
+						},
+						NumberIn2 = Input {
+							SourceOp = "ProbeMax",
+							Source = "Result",
+						},
+						LUTIn1 = Input {
+							SourceOp = "MinMaxSampleLUTIn1",
+							Source = "Value",
+						},
+						LUTIn2 = Input {
+							SourceOp = "MinMaxSampleLUTIn2",
+							Source = "Value",
+						},
+						LUTIn3 = Input {
+							SourceOp = "MinMaxSampleLUTIn3",
+							Source = "Value",
+						},
+						LUTIn4 = Input {
+							SourceOp = "MinMaxSampleLUTIn4",
+							Source = "Value",
+						},
+						NameforNumber1 = Input { Value = "min", },
+						NameforNumber2 = Input { Value = "max", },
+						ShowNumber3 = Input { Value = 0, },
+						ShowNumber4 = Input { Value = 0, },
+						ShowNumber5 = Input { Value = 0, },
+						ShowNumber6 = Input { Value = 0, },
+						ShowNumber7 = Input { Value = 0, },
+						ShowNumber8 = Input { Value = 0, },
+						ShowPoint1 = Input { Value = 0, },
+						ShowPoint2 = Input { Value = 0, },
+						ShowPoint3 = Input { Value = 0, },
+						ShowPoint4 = Input { Value = 0, },
+						ShowLUT1 = Input { Value = 0, },
+						ShowLUT2 = Input { Value = 0, },
+						ShowLUT3 = Input { Value = 0, },
+						ShowLUT4 = Input { Value = 0, },
+						Image1 = Input {
+							SourceOp = "MultiFrameRetime",
+							Source = "Output",
+						}
+					},
+					ViewInfo = OperatorInfo { Pos = { 1052.34, 750.183 } },
+				},
+				ProbeMin = Probe {
+					CtrlWZoom = false,
+					NameSet = true,
+					Inputs = {
+						ImageToProbe = Input {
+							SourceOp = "MultiFrameRetime",
+							Source = "Output",
+						},
+						ProbeRectangle = Input { Value = 1, },
+						Width = Input { Value = 0.5, },
+						Height = Input { Value = 0.5, },
+						Evaluation = Input { Value = 1, }
+					},
+				},
+				ProbeMax = Probe {
+					CtrlWZoom = false,
+					NameSet = true,
+					Inputs = {
+						ImageToProbe = Input {
+							SourceOp = "MultiFrameRetime",
+							Source = "Output",
+						},
+						ProbeRectangle = Input { Value = 1, },
+						Width = Input { Value = 0.5, },
+						Height = Input { Value = 0.5, },
+						Evaluation = Input { Value = 2, }
+					},
+				},
+				MinMaxSampleLUTIn1 = LUTBezier {
+					KeyColorSplines = {
+						[0] = {
+							[0] = { 0, RH = { 0.333333333333333, 0.333333333333333 }, Flags = { Linear = true } },
+							[1] = { 1, LH = { 0.666666666666667, 0.666666666666667 }, Flags = { Linear = true } }
+						}
+					},
+					SplineColor = { Red = 255, Green = 255, Blue = 0 },
+					CtrlWZoom = false,
+				},
+				MinMaxSampleLUTIn2 = LUTBezier {
+					KeyColorSplines = {
+						[0] = {
+							[0] = { 0, RH = { 0.333333333333333, 0.333333333333333 }, Flags = { Linear = true } },
+							[1] = { 1, LH = { 0.666666666666667, 0.666666666666667 }, Flags = { Linear = true } }
+						}
+					},
+					SplineColor = { Red = 255, Green = 0, Blue = 255 },
+					CtrlWZoom = false,
+				},
+				MinMaxSampleLUTIn3 = LUTBezier {
+					KeyColorSplines = {
+						[0] = {
+							[0] = { 0, RH = { 0.333333333333333, 0.333333333333333 }, Flags = { Linear = true } },
+							[1] = { 1, LH = { 0.666666666666667, 0.666666666666667 }, Flags = { Linear = true } }
+						}
+					},
+					SplineColor = { Red = 0, Green = 180, Blue = 255 },
+					CtrlWZoom = false,
+				},
+				MinMaxSampleLUTIn4 = LUTBezier {
+					KeyColorSplines = {
+						[0] = {
+							[0] = { 0, RH = { 0.333333333333333, 0.333333333333333 }, Flags = { Linear = true } },
+							[1] = { 1, LH = { 0.666666666666667, 0.666666666666667 }, Flags = { Linear = true } }
+						}
+					},
+					SplineColor = { Red = 180, Green = 255, Blue = 0 },
+					CtrlWZoom = false,
+				},
+				Sample_square = RectangleMask {
+					NameSet = true,
+					Inputs = {
+						Filter = Input { Value = FuID { "Fast Gaussian" }, },
+						OutputSize = Input { Value = FuID { "Custom" }, },
+						MaskWidth = Input {
+							Value = 1920,
+							Expression = "SampleCrop.Input.OriginalWidth",
+						},
+						MaskHeight = Input {
+							Value = 1080,
+							Expression = "SampleCrop.Input.OriginalHeight",
+						},
+						PixelAspect = Input { Value = { 1, 1 }, },
+						ClippingMode = Input { Value = FuID { "None" }, },
+						Center = Input { Value = { 0.5, 0.5 }, },
+						Width = Input { Value = 0.08, },
+						Height = Input { Value = 0.08, },
+						CornerRadius = Input { Expression = "0.0", },
+						Angle = Input { Expression = "0.0", }
+					},
+					ViewInfo = OperatorInfo { Pos = { 108.428, 546.15 } },
+				},
+				MultiFrameRetime = TimeStretcher {
+					NameSet = true,
+					Inputs = {
+						SourceTime = Input {
+							SourceOp = "MultiFrameRetimeSourceTime",
+							Source = "Value",
+						},
+						InterpolateBetweenFrames = Input { Value = 0, },
+						SampleSpread = Input { Disabled = true, },
+						Input = Input {
+							SourceOp = "SCLuma",
+							Source = "Output",
+						}
+					},
+					ViewInfo = OperatorInfo { Pos = { 1052.34, 780.603 } },
+					Colors = {
+						TileColor = { R = 0.372549019607843, G = 0.6, B = 0.125490196078431 },
+						TextColor = { R = 0.584313725490196, G = 0.294117647058824, B = 0.803921568627451 },
+					}
+				},
+				Instance_depth = ChangeDepth {
+					NameSet = true,
+					SourceOp = "depth",
+					Inputs = {
+						SettingsNest = Input {
+						},
+						LayersNest = Input {
+						},
+						Input = Input {
+							SourceOp = "Plate_Input",
+							Source = "Output",
+						},
+						CommentsNest = Input {
+						},
+						FrameRenderScriptNest = Input {
+						},
+						StartRenderScripts = Input {
+						},
+						EndRenderScripts = Input {
+						}
+					},
+					ViewInfo = OperatorInfo { Pos = { -1126.77, 720.902 } },
+				},
+				Plate_Input = PipeRouter {
+					NameSet = true,
+					Inputs = {
+						Input = Input {
+							SourceOp = "Loader3_1_1_1",
+							Source = "Output",
+						}
+					},
+					ViewInfo = PipeRouterInfo { Pos = { -1294.89, 720.902 } },
+				},
+				Dot9 = PipeRouter {
+					NameSet = true,
+					Inputs = {
+						Input = Input {
+							SourceOp = "NomaliseGrain",
+							Source = "Output",
+						}
+					},
+					ViewInfo = PipeRouterInfo { Pos = { 68.2974, 363.007 } },
+					Colors = { TileColor = { R = 0.572549019607843, G = 0.572549019607843, B = 0.572549019607843 }, }
+				},
+				SCLuma = ChannelBoolean {
+					NameSet = true,
+					Inputs = {
+						ToRed = Input {
+							Value = 2,
+							Expression = "SetChannel.ToRed",
+						},
+						ToGreen = Input { Value = 15, },
+						ToBlue = Input { Value = 15, },
+						ToAlpha = Input { Value = 15, },
+						Background = Input {
+							SourceOp = "CineonLog",
+							Source = "Output",
+						}
+					},
+					ViewInfo = OperatorInfo { Pos = { 1052.34, 813.603 } },
+				},
+				CineonLog = CineonLog {
+					NameSet = true,
+					Inputs = {
+						Mode = Input { Value = 1, },
+						SLogVersion = Input { Value = FuID { "SLog2" }, },
+						Input = Input {
+							SourceOp = "Dot5",
+							Source = "Output",
+						}
+					},
+					ViewInfo = OperatorInfo { Pos = { 1002.37, 859.122 } },
+				},
+				Instance_ColorSpaceTransform2 = ColorSpaceTransform {
+					NameSet = true,
+					SourceOp = "InputColorSpaceTransform",
+					Inputs = {
+						EffectMask = Input {
+						},
+						SettingsNest = Input {
+						},
+						LayersNest = Input {
+						},
+						ColorSpaceTransform = Input {
+						},
+						Swap = Input {
+						},
+						ToneMapping = Input {
+						},
+						SrcLumMax = Input {
+							Disabled = true,
+						},
+						DstLumMax = Input {
+							Disabled = true,
+						},
+						GamutMapping = Input {
+						},
+						Advanced = Input {
+						},
+						Input = Input {
+							SourceOp = "Instance_depth_1",
+							Source = "Output",
+						},
+						CommentsNest = Input {
+						},
+						FrameRenderScriptNest = Input {
+						},
+						StartRenderScripts = Input {
+						},
+						EndRenderScripts = Input {
+						}
+					},
+					ViewInfo = OperatorInfo { Pos = { -961.851, 859.122 } },
+					Version = 1
+				},
+				Instance_depth_1 = ChangeDepth {
+					NameSet = true,
+					SourceOp = "depth",
+					Inputs = {
+						SettingsNest = Input {
+						},
+						LayersNest = Input {
+						},
+						Input = Input {
+							SourceOp = "Denoised_Input",
+							Source = "Output",
+						},
+						CommentsNest = Input {
+						},
+						FrameRenderScriptNest = Input {
+						},
+						StartRenderScripts = Input {
+						},
+						EndRenderScripts = Input {
+						}
+					},
+					ViewInfo = OperatorInfo { Pos = { -1126.5, 860.591 } },
+				},
+				Denoised_Input = PipeRouter {
+					NameSet = true,
+					Inputs = {
+						Input = Input {
+							SourceOp = "Loader4_1_1_1",
+							Source = "Output",
+						}
+					},
+					ViewInfo = PipeRouterInfo { Pos = { -1293, 860.591 } },
+				},
+				Dot5 = PipeRouter {
+					NameSet = true,
+					Inputs = {
+						Input = Input {
+							SourceOp = "Dot",
+							Source = "Output",
+						}
+					},
+					ViewInfo = PipeRouterInfo { Pos = { -447.067, 858.453 } },
+				},
+				Dot = PipeRouter {
+					NameSet = true,
+					Inputs = {
+						Input = Input {
+							SourceOp = "Instance_ColorSpaceTransform2",
+							Source = "Output",
+						}
+					},
+					ViewInfo = PipeRouterInfo { Pos = { -723.953, 859.122 } },
+				},
+				Dot3 = PipeRouter {
+					NameSet = true,
+					Inputs = {
+						Input = Input {
+							SourceOp = "Dot5",
+							Source = "Output",
+						}
+					},
+					ViewInfo = PipeRouterInfo { Pos = { -430.098, 959.343 } },
+				},
+				KeyMix = Merge {
+					NameSet = true,
+					Inputs = {
+						Blend = Input {
+							Value = 0,
+							Expression = "Controls.Replace",
+						},
+						Background = Input {
+							SourceOp = "Dot9",
+							Source = "Output",
+						},
+						Foreground = Input {
+							SourceOp = "Texture1",
+							Source = "Output",
+						},
+						Operator = Input { Value = FuID { "Held Out" }, },
+						PerformDepthMerge = Input { Value = 0, }
+					},
+					ViewInfo = OperatorInfo { Pos = { 706.429, 363.007 } },
+				},
+				SCPlate = ChannelBoolean {
+					NameSet = true,
+					Inputs = {
+						ToRed = Input {
+							Value = 2,
+							Expression = "SetChannel.ToRed",
+						},
+						ToGreen = Input { Value = 15, },
+						ToBlue = Input { Value = 15, },
+						ToAlpha = Input { Value = 15, },
+						Background = Input {
+							SourceOp = "Dot3",
+							Source = "Output",
+						}
+					},
+					ViewInfo = OperatorInfo { Pos = { 1243.23, 956.422 } },
+				},
+				SetChannel = ChannelBoolean {
+					NameSet = true,
+					Inputs = {
+						ToRed = Input { Value = 2, },
+						ToGreen = Input { Value = 15, },
+						ToBlue = Input { Value = 15, },
+						ToAlpha = Input { Value = 15, },
+						Background = Input {
+							SourceOp = "subtract",
+							Source = "Output",
+						}
+					},
+					ViewInfo = OperatorInfo { Pos = { 1245.53, 721.571 } },
+				},
+				CustomKeyer = Custom {
+					NameSet = true,
+					Inputs = {
+						NumberIn1 = Input { Value = 0.391045237518847, },
+						NumberIn2 = Input { Value = 0.0077645530924201, },
+						LUTIn1 = Input {
+							SourceOp = "CustomKeyerLUTIn1",
+							Source = "Value",
+						},
+						LUTIn2 = Input {
+							SourceOp = "CustomKeyerLUTIn2",
+							Source = "Value",
+						},
+						LUTIn3 = Input {
+							SourceOp = "CustomKeyerLUTIn3",
+							Source = "Value",
+						},
+						LUTIn4 = Input {
+							SourceOp = "CustomKeyerLUTIn4",
+							Source = "Value",
+						},
+						Setup1 = Input {
+							Value = "0.38328068442643",
+							Expression = "NumberIn1-NumberIn2",
+						},
+						Setup2 = Input {
+							Value = "0.39880979061127",
+							Expression = "NumberIn1+NumberIn2",
+						},
+						AlphaExpression = Input { Value = "r1 >= s1 && r1 <= s2", },
+						NumberControls = Input { Value = 1, },
+						ShowNumber3 = Input { Value = 0, },
+						ShowNumber4 = Input { Value = 0, },
+						ShowNumber5 = Input { Value = 0, },
+						ShowNumber6 = Input { Value = 0, },
+						ShowNumber7 = Input { Value = 0, },
+						ShowNumber8 = Input { Value = 0, },
+						ShowPoint1 = Input { Value = 0, },
+						ShowPoint2 = Input { Value = 0, },
+						ShowPoint3 = Input { Value = 0, },
+						ShowPoint4 = Input { Value = 0, },
+						ShowLUT1 = Input { Value = 0, },
+						ShowLUT2 = Input { Value = 0, },
+						ShowLUT3 = Input { Value = 0, },
+						ShowLUT4 = Input { Value = 0, },
+						Image1 = Input {
+							SourceOp = "CineonLog",
+							Source = "Output",
+						}
+					},
+					ViewInfo = OperatorInfo { Pos = { 1462.63, 861.191 } },
+				},
+				CustomKeyerLUTIn1 = LUTBezier {
+					KeyColorSplines = {
+						[0] = {
+							[0] = { 0, RH = { 0.333333333333333, 0.333333333333333 }, Flags = { Linear = true } },
+							[1] = { 1, LH = { 0.666666666666667, 0.666666666666667 }, Flags = { Linear = true } }
+						}
+					},
+					SplineColor = { Red = 204, Green = 0, Blue = 0 },
+					CtrlWZoom = false,
+				},
+				CustomKeyerLUTIn2 = LUTBezier {
+					KeyColorSplines = {
+						[0] = {
+							[0] = { 0, RH = { 0.333333333333333, 0.333333333333333 }, Flags = { Linear = true } },
+							[1] = { 1, LH = { 0.666666666666667, 0.666666666666667 }, Flags = { Linear = true } }
+						}
+					},
+					SplineColor = { Red = 0, Green = 204, Blue = 0 },
+					CtrlWZoom = false,
+				},
+				CustomKeyerLUTIn3 = LUTBezier {
+					KeyColorSplines = {
+						[0] = {
+							[0] = { 0, RH = { 0.333333333333333, 0.333333333333333 }, Flags = { Linear = true } },
+							[1] = { 1, LH = { 0.666666666666667, 0.666666666666667 }, Flags = { Linear = true } }
+						}
+					},
+					SplineColor = { Red = 0, Green = 0, Blue = 204 },
+					CtrlWZoom = false,
+				},
+				CustomKeyerLUTIn4 = LUTBezier {
+					KeyColorSplines = {
+						[0] = {
+							[0] = { 0, RH = { 0.333333333333333, 0.333333333333333 }, Flags = { Linear = true } },
+							[1] = { 1, LH = { 0.666666666666667, 0.666666666666667 }, Flags = { Linear = true } }
+						}
+					},
+					SplineColor = { Red = 204, Green = 204, Blue = 204 },
+					CtrlWZoom = false,
+				},
+				AbsoluteValues = Custom {
+					NameSet = true,
+					Inputs = {
+						LUTIn1 = Input {
+							SourceOp = "AbsoluteValuesLUTIn1",
+							Source = "Value",
+						},
+						LUTIn2 = Input {
+							SourceOp = "AbsoluteValuesLUTIn2",
+							Source = "Value",
+						},
+						LUTIn3 = Input {
+							SourceOp = "AbsoluteValuesLUTIn3",
+							Source = "Value",
+						},
+						LUTIn4 = Input {
+							SourceOp = "AbsoluteValuesLUTIn4",
+							Source = "Value",
+						},
+						RedExpression = Input { Value = "abs(r1)", },
+						GreenExpression = Input {
+							Value = Text {
+							},
+						},
+						BlueExpression = Input {
+							Value = Text {
+							},
+						},
+						AlphaExpression = Input { Value = "r1 == 0", },
+						Image1 = Input {
+							SourceOp = "SetChannel",
+							Source = "Output",
+						}
+					},
+					ViewInfo = OperatorInfo { Pos = { 1465.53, 721.571 } },
+					Colors = {
+						TileColor = { R = 0.725490196078431, G = 0.690196078431373, B = 0.592156862745098 },
+						TextColor = { R = 0.913725490196078, G = 0.549019607843137, B = 0.709803921568627 },
+					}
+				},
+				AbsoluteValuesLUTIn1 = LUTBezier {
+					KeyColorSplines = {
+						[0] = {
+							[0] = { 0, RH = { 0.333333333333333, 0.333333333333333 }, Flags = { Linear = true } },
+							[1] = { 1, LH = { 0.666666666666667, 0.666666666666667 }, Flags = { Linear = true } }
+						}
+					},
+					SplineColor = { Red = 204, Green = 0, Blue = 0 },
+					CtrlWZoom = false,
+					Colors = {
+						TileColor = { R = 1, G = 0.658823529411765, B = 0.2 },
+						TextColor = { R = 0.886274509803922, G = 0.662745098039216, B = 0.109803921568627 },
+					}
+				},
+				AbsoluteValuesLUTIn2 = LUTBezier {
+					KeyColorSplines = {
+						[0] = {
+							[0] = { 0, RH = { 0.333333333333333, 0.333333333333333 }, Flags = { Linear = true } },
+							[1] = { 1, LH = { 0.666666666666667, 0.666666666666667 }, Flags = { Linear = true } }
+						}
+					},
+					SplineColor = { Red = 0, Green = 204, Blue = 0 },
+					CtrlWZoom = false,
+					Colors = {
+						TileColor = { R = 0.725490196078431, G = 0.690196078431373, B = 0.592156862745098 },
+						TextColor = { R = 0.549019607843137, G = 0.352941176470588, B = 0.247058823529412 },
+					}
+				},
+				AbsoluteValuesLUTIn3 = LUTBezier {
+					KeyColorSplines = {
+						[0] = {
+							[0] = { 0, RH = { 0.333333333333333, 0.333333333333333 }, Flags = { Linear = true } },
+							[1] = { 1, LH = { 0.666666666666667, 0.666666666666667 }, Flags = { Linear = true } }
+						}
+					},
+					SplineColor = { Red = 0, Green = 0, Blue = 204 },
+					CtrlWZoom = false,
+					Colors = {
+						TileColor = { R = 0.372549019607843, G = 0.6, B = 0.125490196078431 },
+						TextColor = { R = 0.6, G = 0.4, B = 0 },
+					}
+				},
+				AbsoluteValuesLUTIn4 = LUTBezier {
+					KeyColorSplines = {
+						[0] = {
+							[0] = { 0, RH = { 0.333333333333333, 0.333333333333333 }, Flags = { Linear = true } },
+							[1] = { 1, LH = { 0.666666666666667, 0.666666666666667 }, Flags = { Linear = true } }
+						}
+					},
+					SplineColor = { Red = 204, Green = 204, Blue = 204 },
+					CtrlWZoom = false,
+					Colors = {
+						TileColor = { R = 0.913725490196078, G = 0.549019607843137, B = 0.709803921568627 },
+						TextColor = { R = 0.549019607843137, G = 0.352941176470588, B = 0.247058823529412 },
+					}
+				},
+				ReplaceGrainScatterhere = Underlay {
+					NameSet = true,
+					Inputs = {
+						Comments = Input { Value = "Re", }
+					},
+					ViewInfo = UnderlayInfo {
+						Pos = { 422.815, 294.299 },
+						Size = { 920.47, 298.999 }
+					},
+				},
+				AdaptGrain = Custom {
+					CtrlWShown = false,
+					NameSet = true,
+					Inputs = {
+						ProcessAlpha = Input { Value = 0, },
+						LUTIn1 = Input {
+							SourceOp = "AdaptGrainLUTIn1",
+							Source = "Value",
+						},
+						LUTIn2 = Input {
+							SourceOp = "AdaptGrainLUTIn2",
+							Source = "Value",
+						},
+						LUTIn3 = Input {
+							SourceOp = "AdaptGrainLUTIn3",
+							Source = "Value",
+						},
+						LUTIn4 = Input {
+							SourceOp = "AdaptGrainLUTIn4",
+							Source = "Value",
+						},
+						RedExpression = Input { Value = "r1 * (1/0.01)  * r2", },
+						GreenExpression = Input { Value = "g1 * (1/0.01)  * g2", },
+						BlueExpression = Input { Value = "b1 * (1/0.01)  * b2", },
+						AlphaExpression = Input {
+							Value = Text {
+							},
+						},
+						ShowNumber1 = Input { Value = 0, },
+						ShowNumber2 = Input { Value = 0, },
+						ShowNumber3 = Input { Value = 0, },
+						ShowNumber4 = Input { Value = 0, },
+						ShowNumber5 = Input { Value = 0, },
+						ShowNumber6 = Input { Value = 0, },
+						ShowNumber7 = Input { Value = 0, },
+						ShowNumber8 = Input { Value = 0, },
+						ShowPoint1 = Input { Value = 0, },
+						ShowPoint2 = Input { Value = 0, },
+						ShowPoint3 = Input { Value = 0, },
+						ShowPoint4 = Input { Value = 0, },
+						ShowLUT1 = Input { Value = 0, },
+						ShowLUT2 = Input { Value = 0, },
+						ShowLUT3 = Input { Value = 0, },
+						ShowLUT4 = Input { Value = 0, },
+						Image1 = Input {
+							SourceOp = "GrainResponse",
+							Source = "Output",
+						},
+						Image2 = Input {
+							SourceOp = "Dot7",
+							Source = "Output",
+						}
+					},
+					ViewInfo = OperatorInfo { Pos = { 1546.03, 114.427 } },
+				},
+				AdaptGrainLUTIn1 = LUTBezier {
+					KeyColorSplines = {
+						[0] = {
+							[0] = { 0, RH = { 0.333333333333333, 0.333333333333333 }, Flags = { Linear = true } },
+							[1] = { 1, LH = { 0.666666666666667, 0.666666666666667 }, Flags = { Linear = true } }
+						}
+					},
+					SplineColor = { Red = 204, Green = 0, Blue = 0 },
+					CtrlWZoom = false,
+				},
+				AdaptGrainLUTIn2 = LUTBezier {
+					KeyColorSplines = {
+						[0] = {
+							[0] = { 0, RH = { 0.333333333333333, 0.333333333333333 }, Flags = { Linear = true } },
+							[1] = { 1, LH = { 0.666666666666667, 0.666666666666667 }, Flags = { Linear = true } }
+						}
+					},
+					SplineColor = { Red = 0, Green = 204, Blue = 0 },
+					CtrlWZoom = false,
+				},
+				AdaptGrainLUTIn3 = LUTBezier {
+					KeyColorSplines = {
+						[0] = {
+							[0] = { 0, RH = { 0.333333333333333, 0.333333333333333 }, Flags = { Linear = true } },
+							[1] = { 1, LH = { 0.666666666666667, 0.666666666666667 }, Flags = { Linear = true } }
+						}
+					},
+					SplineColor = { Red = 0, Green = 0, Blue = 204 },
+					CtrlWZoom = false,
+				},
+				AdaptGrainLUTIn4 = LUTBezier {
+					KeyColorSplines = {
+						[0] = {
+							[0] = { 0, RH = { 0.333333333333333, 0.333333333333333 }, Flags = { Linear = true } },
+							[1] = { 1, LH = { 0.666666666666667, 0.666666666666667 }, Flags = { Linear = true } }
+						}
+					},
+					SplineColor = { Red = 204, Green = 204, Blue = 204 },
+					CtrlWZoom = false,
+				},
+				Stencil = GroupOperator {
+					NameSet = true,
+					Inputs = ordered() {
+						Input1 = InstanceInput {
+							SourceOp = "MatteControl5_4_1",
+							Source = "Background",
+						},
+						Input2 = InstanceInput {
+							SourceOp = "PipeRouter12_4_1",
+							Source = "Input",
+						}
+					},
+					Outputs = {
+						Output1 = InstanceOutput {
+							SourceOp = "multiply_stencil",
+							Source = "Output",
+						}
+					},
+					ViewInfo = GroupInfo {
+						Pos = { 1074.82, 883.547 },
+						Flags = {
+							AllowPan = false,
+							ConnectedSnap = true,
+							AutoSnap = true,
+							RemoveRouters = true
+						},
+						Size = { 244.5, 105.435, 122.25, 24.2424 },
+						Direction = "Horizontal",
+						PipeStyle = "Direct",
+						Scale = 1,
+						Offset = { 0, 0 }
+					},
+					Tools = ordered() {
+						PipeRouter12_4_1 = PipeRouter {
+							CtrlWShown = false,
+							Inputs = {
+								Input = Input {
+									SourceOp = "Dot6",
+									Source = "Output",
+								}
+							},
+							ViewInfo = PipeRouterInfo { Pos = { -12.3599, 47.8994 } },
+						},
+						multiply_stencil = ChannelBoolean {
+							CtrlWShown = false,
+							NameSet = true,
+							Inputs = {
+								Operation = Input { Value = 6, },
+								Background = Input {
+									SourceOp = "PipeRouter12_4_1",
+									Source = "Output",
+								},
+								Foreground = Input {
+									SourceOp = "MatteControl5_4_1",
+									Source = "Output",
+								}
+							},
+							ViewInfo = OperatorInfo { Pos = { 59, 7.61573 } },
+						},
+						MatteControl5_4_1 = MatteControl {
+							CtrlWShown = false,
+							Inputs = {
+								Filter = Input { Value = FuID { "Fast Gaussian" }, },
+								InvertMatte = Input { Value = 1, },
+								MultiplyGarbageMatte = Input { Value = 0, },
+								Background = Input {
+									SourceOp = "AbsoluteValues",
+									Source = "Output",
+								},
+								Foreground = Input {
+									SourceOp = "PipeRouter12_4_1",
+									Source = "Output",
+								}
+							},
+							ViewInfo = OperatorInfo { Pos = { -59.5, 7.61573 } },
+						}
+					},
+				},
+				ChannelBooleans = ChannelBoolean {
+					NameSet = true,
+					Inputs = {
+						ToRed = Input { Value = 5, },
+						ToGreen = Input { Value = 15, },
+						ToBlue = Input { Value = 15, },
+						Background = Input {
+							SourceOp = "AbsoluteValues",
+							Source = "Output",
+						},
+						Foreground = Input {
+							SourceOp = "multiply_stencil",
+							Source = "Output",
+						}
+					},
+					ViewInfo = OperatorInfo { Pos = { 1579.13, 721.571 } },
+				},
+				add = ChannelBoolean {
+					NameSet = true,
+					Inputs = {
+						Operation = Input { Value = 1, },
+						Background = Input {
+							SourceOp = "Dot8",
+							Source = "Output",
+						},
+						Foreground = Input {
+							SourceOp = "AdaptGrain",
+							Source = "Output",
+						}
+					},
+					ViewInfo = OperatorInfo { Pos = { 1594.76, 7.92712 } },
+				},
+				Dot7 = PipeRouter {
+					NameSet = true,
+					Inputs = {
+						Input = Input {
+							SourceOp = "KeyMix",
+							Source = "Output",
+						}
+					},
+					ViewInfo = PipeRouterInfo { Pos = { 1572.26, 363.007 } },
+				},
+				Dot6 = PipeRouter {
+					NameSet = true,
+					Inputs = {
+						Input = Input {
+							SourceOp = "CustomKeyer",
+							Source = "Output",
+						}
+					},
+					ViewInfo = PipeRouterInfo { Pos = { 1579.13, 860.591 } },
+				},
+				ChannelBooleans2 = ChannelBoolean {
+					NameSet = true,
+					Inputs = {
+						ToRed = Input { Value = 5, },
+						ToGreen = Input { Value = 0, },
+						ToBlue = Input { Value = 15, },
+						ToAlpha = Input { Value = 4, },
+						Background = Input {
+							SourceOp = "ChannelBooleans",
+							Source = "Output",
+						},
+						Foreground = Input {
+							SourceOp = "Dot4",
+							Source = "Output",
+						}
+					},
+					ViewInfo = OperatorInfo { Pos = { 1690.73, 721.571 } },
+				},
+				Dot4 = PipeRouter {
+					NameSet = true,
+					Inputs = {
+						Input = Input {
+							SourceOp = "SCPlate",
+							Source = "Output",
+						}
+					},
+					ViewInfo = PipeRouterInfo { Pos = { 1690.73, 956.422 } },
+				},
+				OutputColorSpaceTransform = ColorSpaceTransform {
+					NameSet = true,
+					Inputs = {
+						InputColorSpace = Input {
+							Expression = "InputColorSpaceTransform.OutputColorSpace",
+						},
+						InputGamma = Input {
+							Expression = "InputColorSpaceTransform.OutputGamma",
+						},
+						OutputColorSpace = Input {
+							Expression = "InputColorSpaceTransform.InputColorSpace",
+						},
+						OutputGamma = Input {
+							Expression = "InputColorSpaceTransform.InputGamma",
+						},
+						ToneMappingMethod = Input { Value = FuID { "TM_NONE" }, },
+						SrcLumMax = Input { Disabled = true, },
+						DstLumMax = Input { Disabled = true, },
+						Advanced = Input { Value = 0, },
+						UseWhitePointAdaptation = Input { Value = 0, },
+						PreDividePostMultiply = Input { Value = 0, },
+						Input = Input {
+							SourceOp = "add",
+							Source = "Output",
+						}
+					},
+					ViewInfo = OperatorInfo { Pos = { 1878.3, 7.92712 } },
+					Version = 1
+				},
+				AlphaMultiply = AlphaMultiply {
+					NameSet = true,
+					Inputs = {
+						Input = Input {
+							SourceOp = "ChannelBooleans2",
+							Source = "Output",
+						}
+					},
+					ViewInfo = OperatorInfo { Pos = { 1891.53, 721.571 } },
+					Colors = {
+						TileColor = { R = 0.584313725490196, G = 0.294117647058824, B = 0.803921568627451 },
+						TextColor = { R = 0.372549019607843, G = 0.6, B = 0.125490196078431 },
+					}
+				},
+				Instance_MinMaxRetime = TimeStretcher {
+					NameSet = true,
+					SourceOp = "MultiFrameRetime",
+					Inputs = {
+						SettingsNest = Input {
+						},
+						LayersNest = Input {
+						},
+						SampleSpread = Input {
+							Disabled = true,
+						},
+						Input = Input {
+							SourceOp = "AlphaMultiply",
+							Source = "Output",
+						},
+						["EnableWarp.Nest"] = Input {
+						},
+						CommentsNest = Input {
+						},
+						FrameRenderScriptNest = Input {
+						},
+						StartRenderScripts = Input {
+						},
+						EndRenderScripts = Input {
+						}
+					},
+					ViewInfo = OperatorInfo { Pos = { 1891.53, 780.961 } },
+					Colors = {
+						TileColor = { R = 0.372549019607843, G = 0.6, B = 0.125490196078431 },
+						TextColor = { R = 0.584313725490196, G = 0.294117647058824, B = 0.803921568627451 },
+					}
+				},
+				BlendFrames = Fuse.FrameAverage {
+					NameSet = true,
+					Inputs = {
+						SampleDirection = Input { Value = 2, },
+						Frames = Input { Value = 4, },
+						Input = Input {
+							SourceOp = "Instance_MinMaxRetime",
+							Source = "Output",
+						}
+					},
+					ViewInfo = OperatorInfo { Pos = { 1891.53, 813.63 } },
+				},
+				FirstFrame = TimeStretcher {
+					NameSet = true,
+					Inputs = {
+						SourceTime = Input { Value = 1, },
+						InterpolateBetweenFrames = Input { Value = 0, },
+						SampleSpread = Input { Disabled = true, },
+						Input = Input {
+							SourceOp = "BlendFrames",
+							Source = "Output",
+						}
+					},
+					ViewInfo = OperatorInfo { Pos = { 1891.53, 847.205 } },
+				},
+				SampleGrainDot = PipeRouter {
+					NameSet = true,
+					Inputs = {
+						Input = Input {
+							SourceOp = "FirstFrame",
+							Source = "Output",
+						}
+					},
+					ViewInfo = PipeRouterInfo { Pos = { 1890.87, 882.003 } },
+				},
+				Controls = GroupOperator {
+					NameSet = true,
+					Inputs = ordered() {
+						NumberOfSamples = Input { Value = 20, },
+						NumberOfFrames = Input { Value = 10, },
+						Replace = Input { Value = 0, },
+						ReferenceFrame = Input { Value = 1, },
+						Input1 = InstanceInput {
+							SourceOp = "AlphaDivide1",
+							Source = "Input",
+						}
+					},
+					Outputs = {
+						Output1 = InstanceOutput {
+							SourceOp = "AlphaDivide1",
+							Source = "Output",
+						}
+					},
+					ViewInfo = GroupInfo {
+						Pos = { 2062.6, -107.283 },
+						Flags = {
+							AllowPan = false,
+							ConnectedSnap = true,
+							AutoSnap = true,
+							RemoveRouters = true
+						},
+						Size = { 126, 66.3636, 63, 24.2424 },
+						Direction = "Horizontal",
+						PipeStyle = "Direct",
+						Scale = 1,
+						Offset = { 0, 0 }
+					},
+					Tools = ordered() {
+						AlphaDivide1 = AlphaDivide {
+							CtrlWShown = false,
+							ViewInfo = OperatorInfo { Pos = { 0, 8.75757 } },
+						}
+					},
+					UserControls = ordered() {
+						Separator1 = {
+							INP_Integer = true,
+							INPID_InputControl = "SeparatorControl",
+							INP_Passive = true,
+							LINKID_DataType = "Number",
+							LINKS_Name = "",
+						},
+						NumberOfSamples = {
+							INP_MaxAllowed = 1000000,
+							INP_Integer = true,
+							INPID_InputControl = "SliderControl",
+							INP_MaxScale = 50,
+							INP_Default = 10,
+							INP_MinScale = 1,
+							INP_MinAllowed = -1000000,
+							LINKID_DataType = "Number",
+							INP_External = false,
+							INP_SplineType = "Default",
+							LINKS_Name = "Number Of Samples",
+						},
+						NumberOfFrames = {
+							INP_Integer = true,
+							INPID_InputControl = "SliderControl",
+							INP_MaxScale = 50,
+							INP_Default = 20,
+							INP_MinScale = 1,
+							INP_External = false,
+							LINKID_DataType = "Number",
+							INP_SplineType = "Default",
+							LINKS_Name = "Number Of Frames",
+						},
+						Analyse = {
+							INP_Integer = false,
+							INP_External = false,
+							LINKID_DataType = "Number",
+							BTNCS_Execute = "@scripts:/Tool/DasGrainFusion.lua",
+							INPID_InputControl = "ButtonControl",
+							INP_SplineType = "Default",
+							LINKS_Name = "Analyse",
+						},
+						Separator2 = {
+							INP_Integer = true,
+							INPID_InputControl = "SeparatorControl",
+							INP_Passive = true,
+							LINKID_DataType = "Number",
+							LINKS_Name = "",
+						},
+						Replace = {
+							CBC_TriState = false,
+							INP_Integer = false,
+							INP_External = false,
+							LINKID_DataType = "Number",
+							INPID_InputControl = "CheckboxControl",
+							INP_SplineType = "Default",
+							LINKS_Name = "Replace",
+						},
+						ReferenceFrame = {
+							INP_Integer = true,
+							INPID_InputControl = "ScrewControl",
+							INP_MaxScale = 5000,
+							INP_Default = 1,
+							INP_MinScale = 1,
+							INP_External = false,
+							LINKID_DataType = "Number",
+							INP_SplineType = "Default",
+							LINKS_Name = "Reference Frame",
+						},
+						Separator3 = {
+							INP_Integer = true,
+							INPID_InputControl = "SeparatorControl",
+							INP_Passive = true,
+							LINKID_DataType = "Number",
+							LINKS_Name = "",
+						},
+						OverlayCellPattern = {
+							CBC_TriState = false,
+							INP_Integer = false,
+							INP_External = false,
+							LINKID_DataType = "Number",
+							INPID_InputControl = "CheckboxControl",
+							INP_SplineType = "Default",
+							LINKS_Name = "Overlay Cell Pattern",
+						},
+						SetFrame = {
+							INP_Integer = false,
+							INP_External = false,
+							LINKID_DataType = "Number",
+							BTNCS_Execute = "@scripts:/Tool/DasGrain/DasGrain.lua",
+							INPID_InputControl = "ButtonControl",
+							INP_SplineType = "Default",
+							LINKS_Name = "Set Reference Frame",
+						},
+						SetRange = {
+							INP_Integer = false,
+							INP_External = false,
+							LINKID_DataType = "Number",
+							BTNCS_Execute = "@scripts:/Tool/DasGrain/DasGrain.lua",
+							INPID_InputControl = "ButtonControl",
+							INP_SplineType = "Default",
+							LINKS_Name = "Set Frame Range From Raw Plate Range",
+						},
+						FrameRangeIn = {
+							LINKS_Name = "In",
+							LINKID_DataType = "Number",
+							INPID_InputControl = "RangeControl",
+							INP_Integer = true,
+							INP_MinScale = 0,
+							INP_MaxScale = 5000,
+							INP_MinAllowed = -1000000,
+							INP_MaxAllowed = 1000000,
+							INP_SplineType = "Default",
+							IC_ControlGroup = 1,
+							IC_ControlID = 0,
+							INP_External = false,
+							INP_Passive = true,
+						},
+						FrameRangeOut = {
+							LINKS_Name = "Out",
+							LINKID_DataType = "Number",
+							INPID_InputControl = "RangeControl",
+							INP_Integer = true,
+							INP_MinScale = 0,
+							INP_MaxScale = 5000,
+							INP_MinAllowed = -1000000,
+							INP_MaxAllowed = 1000000,
+							INP_SplineType = "Default",
+							IC_ControlGroup = 1,
+							IC_ControlID = 1,
+							INP_External = false,
+							INP_Passive = true,
+						},
+						Diagnostic = {
+							{ CCS_AddString = "Output" },
+							{ CCS_AddString = "Grain" },
+							{ CCS_AddString = "Normalised Grain" },
+							{ CCS_AddString = "Adapted Grain" },
+							{ CCS_AddString = "GrainQC" },
+							INP_MaxAllowed = 1000000,
+							INP_Integer = false,
+							INPID_InputControl = "ComboControl",
+							CC_LabelPosition = "Horizontal",
+							INP_MaxScale = 1,
+							INP_MinScale = 0,
+							INP_MinAllowed = -1000000,
+							LINKID_DataType = "Number",
+							INP_External = false,
+							INP_SplineType = "Default",
+							LINKS_Name = "Diagnostic",
+						}
+					}
+				},
+				GrainSample = Custom {
+					NameSet = true,
+					Inputs = {
+						NumberIn1 = Input {
+							SourceOp = "ProbeGrain",
+							Source = "Result",
+						},
+						NumberIn2 = Input {
+							SourceOp = "ProbeGrain",
+							Source = "Green",
+						},
+						NumberIn3 = Input {
+							SourceOp = "ProbeGrain",
+							Source = "Alpha",
+						},
+						LUTControlsNest = Input { Value = 1, },
+						LUTIn1 = Input {
+							SourceOp = "GrainSampleLUTIn1",
+							Source = "Value",
+						},
+						LUTIn2 = Input {
+							SourceOp = "GrainSampleLUTIn2",
+							Source = "Value",
+						},
+						LUTIn3 = Input {
+							SourceOp = "GrainSampleLUTIn3",
+							Source = "Value",
+						},
+						LUTIn4 = Input {
+							SourceOp = "GrainSampleLUTIn4",
+							Source = "Value",
+						},
+						NumberControls = Input { Value = 1, },
+						ShowNumber4 = Input { Value = 0, },
+						ShowNumber5 = Input { Value = 0, },
+						ShowNumber6 = Input { Value = 0, },
+						ShowNumber7 = Input { Value = 0, },
+						ShowNumber8 = Input { Value = 0, },
+						PointControls = Input { Value = 1, },
+						ShowPoint1 = Input { Value = 0, },
+						ShowPoint2 = Input { Value = 0, },
+						ShowPoint3 = Input { Value = 0, },
+						ShowPoint4 = Input { Value = 0, },
+						ShowLUT1 = Input { Value = 0, },
+						ShowLUT2 = Input { Value = 0, },
+						ShowLUT3 = Input { Value = 0, },
+						ShowLUT4 = Input { Value = 0, },
+						Image1 = Input {
+							SourceOp = "SampleGrainDot",
+							Source = "Output",
+						}
+					},
+					ViewInfo = OperatorInfo { Pos = { 1995.37, 882.003 } },
+					Colors = {
+						TileColor = { R = 0.6, G = 0.4, B = 0 },
+						TextColor = { R = 0, G = 0.596078431372549, B = 0.6 },
+					}
+				},
+				ProbeGrain = Probe {
+					CtrlWZoom = false,
+					NameSet = true,
+					Inputs = {
+						ImageToProbe = Input {
+							SourceOp = "SampleGrainDot",
+							Source = "Output",
+						},
+						ProbeRectangle = Input { Value = 1, },
+						Width = Input { Value = 0.5, },
+						Height = Input { Value = 0.5, }
+					},
+				},
+				GrainSampleLUTIn1 = LUTBezier {
+					KeyColorSplines = {
+						[0] = {
+							[0] = { 0, RH = { 0.333333333333333, 0.333333333333333 }, Flags = { Linear = true } },
+							[1] = { 1, LH = { 0.666666666666667, 0.666666666666667 }, Flags = { Linear = true } }
+						}
+					},
+					SplineColor = { Red = 204, Green = 0, Blue = 0 },
+					CtrlWZoom = false,
+					Colors = {
+						TileColor = { R = 0.584313725490196, G = 0.294117647058824, B = 0.803921568627451 },
+						TextColor = { R = 0, G = 0.596078431372549, B = 0.6 },
+					}
+				},
+				GrainSampleLUTIn2 = LUTBezier {
+					KeyColorSplines = {
+						[0] = {
+							[0] = { 0, RH = { 0.333333333333333, 0.333333333333333 }, Flags = { Linear = true } },
+							[1] = { 1, LH = { 0.666666666666667, 0.666666666666667 }, Flags = { Linear = true } }
+						}
+					},
+					SplineColor = { Red = 0, Green = 204, Blue = 0 },
+					CtrlWZoom = false,
+					Colors = {
+						TileColor = { R = 0.6, G = 0.450980392156863, B = 0.627450980392157 },
+						TextColor = { R = 0, G = 0.596078431372549, B = 0.6 },
+					}
+				},
+				GrainSampleLUTIn3 = LUTBezier {
+					KeyColorSplines = {
+						[0] = {
+							[0] = { 0, RH = { 0.333333333333333, 0.333333333333333 }, Flags = { Linear = true } },
+							[1] = { 1, LH = { 0.666666666666667, 0.666666666666667 }, Flags = { Linear = true } }
+						}
+					},
+					SplineColor = { Red = 0, Green = 0, Blue = 204 },
+					CtrlWZoom = false,
+					Colors = {
+						TileColor = { R = 0.913725490196078, G = 0.549019607843137, B = 0.709803921568627 },
+						TextColor = { R = 0.266666666666667, G = 0.56078431372549, B = 0.396078431372549 },
+					}
+				},
+				GrainSampleLUTIn4 = LUTBezier {
+					KeyColorSplines = {
+						[0] = {
+							[0] = { 0, RH = { 0.333333333333333, 0.333333333333333 }, Flags = { Linear = true } },
+							[1] = { 1, LH = { 0.666666666666667, 0.666666666666667 }, Flags = { Linear = true } }
+						}
+					},
+					SplineColor = { Red = 204, Green = 204, Blue = 204 },
+					CtrlWZoom = false,
+					Colors = {
+						TileColor = { R = 0.474509803921569, G = 0.658823529411765, B = 0.815686274509804 },
+						TextColor = { R = 0.372549019607843, G = 0.6, B = 0.125490196078431 },
+					}
+				},
+				Switch1 = Switch {
+					Inputs = {
+						NumberOfInputs = Input { Value = 5, },
+						Source = Input { Expression = "Controls.Diagnostic", },
+						Input0 = Input {
+							SourceOp = "OutputColorSpaceTransform",
+							Source = "Output",
+						},
+						Input1 = Input {
+							SourceOp = "dot18",
+							Source = "Output",
+						},
+						Input2 = Input {
+							SourceOp = "dot16",
+							Source = "Output",
+						},
+						Input3 = Input {
+							SourceOp = "AdaptGrain",
+							Source = "Output",
+						},
+						Input4 = Input {
+							SourceOp = "BrightnessContrast1",
+							Source = "Output",
+						}
+					},
+					ViewInfo = OperatorInfo { Pos = { 2161.74, 250.068 } },
+					Colors = { TileColor = { R = 0.572549019607843, G = 0.572549019607843, B = 0.572549019607843 }, }
+				},
+				add_1 = ChannelBoolean {
+					NameSet = true,
+					CustomData = {
+						SxSFilename = "Reactor:\\Deploy\\Macros\\nuke2fusion\\add.setting",
+						Path = {
+							Map = {
+								["Setting:"] = "Macros:\\nuke2fusion\\"
+							}
+						}
+					},
+					Inputs = {
+						Operation = Input { Value = 1, },
+						Background = Input {
+							SourceOp = "RandPosition",
+							Source = "Output",
+						},
+						Foreground = Input {
+							SourceOp = "Vector",
+							Source = "Output",
+						}
+					},
+					ViewInfo = OperatorInfo { Pos = { 412.568, 482.089 } },
+				},
+				Vector = Custom {
+					NameSet = true,
+					Inputs = {
+						PointIn1 = Input { Value = { 0, 0 }, },
+						NumberIn1 = Input {
+							Value = 0.205875920755664,
+							Expression = "Sample_square.Center.X+Sample_square.Width/2",
+						},
+						NumberIn2 = Input {
+							Value = 0.0637729827084505,
+							Expression = "Sample_square.Center.X-Sample_square.Width/2",
+						},
+						NumberIn3 = Input {
+							Value = 0.164762259998109,
+							Expression = "Sample_square.Center.Y+Sample_square.Height/2",
+						},
+						NumberIn4 = Input {
+							Value = 0.0275261800387432,
+							Expression = "Sample_square.Center.Y-Sample_square.Height/2",
+						},
+						LUTIn1 = Input {
+							SourceOp = "coord_minusLUTIn1",
+							Source = "Value",
+						},
+						LUTIn2 = Input {
+							SourceOp = "coord_minusLUTIn2",
+							Source = "Value",
+						},
+						LUTIn3 = Input {
+							SourceOp = "coord_minusLUTIn3",
+							Source = "Value",
+						},
+						LUTIn4 = Input {
+							SourceOp = "coord_minusLUTIn4",
+							Source = "Value",
+						},
+						RedExpression = Input { Value = "x-r1", },
+						GreenExpression = Input { Value = "y-g1", },
+						BlueExpression = Input {
+							Value = Text {
+							},
+						},
+						AlphaExpression = Input { Value = "1", },
+						Image1 = Input {
+							SourceOp = "DG_Voronoi",
+							Source = "Output",
+						}
+					},
+					ViewInfo = OperatorInfo { Pos = { 273.571, 482.089 } },
+				},
+				WrapEdges = Custom {
+					NameSet = true,
+					Inputs = {
+						LUTIn1 = Input {
+							SourceOp = "wrapLUTIn1",
+							Source = "Value",
+						},
+						LUTIn2 = Input {
+							SourceOp = "wrapLUTIn2",
+							Source = "Value",
+						},
+						LUTIn3 = Input {
+							SourceOp = "wrapLUTIn3",
+							Source = "Value",
+						},
+						LUTIn4 = Input {
+							SourceOp = "wrapLUTIn4",
+							Source = "Value",
+						},
+						Setup1 = Input {
+							Value = "0.20587592075566",
+							Expression = "Vector.NumberIn1",
+						},
+						Setup2 = Input {
+							Value = "0.063772982708451",
+							Expression = "Vector.NumberIn2",
+						},
+						Setup3 = Input {
+							Value = "0.16476225999811",
+							Expression = "Vector.NumberIn3",
+						},
+						Setup4 = Input {
+							Value = "0.027526180038743",
+							Expression = "Vector.NumberIn4",
+						},
+						RedExpression = Input { Value = "(r1+1-s2)%(s1-s2)+s2", },
+						GreenExpression = Input { Value = "(g1+1-s4)%(s3-s4)+s4", },
+						BlueExpression = Input { Value = "0", },
+						AlphaExpression = Input { Value = "1", },
+						Image1 = Input {
+							SourceOp = "add_1",
+							Source = "Output",
+						}
+					},
+					ViewInfo = OperatorInfo { Pos = { 535.083, 482.089 } },
+				},
+				RandPosition = Custom {
+					NameSet = true,
+					Inputs = {
+						LUTIn1 = Input {
+							SourceOp = "RandPositionLUTIn1",
+							Source = "Value",
+						},
+						LUTIn2 = Input {
+							SourceOp = "RandPositionLUTIn2",
+							Source = "Value",
+						},
+						LUTIn3 = Input {
+							SourceOp = "RandPositionLUTIn3",
+							Source = "Value",
+						},
+						LUTIn4 = Input {
+							SourceOp = "RandPositionLUTIn4",
+							Source = "Value",
+						},
+						Setup1 = Input {
+							Value = "0.20587592075566",
+							Expression = "Vector.NumberIn1",
+						},
+						Setup2 = Input {
+							Value = "0.063772982708451",
+							Expression = "Vector.NumberIn2",
+						},
+						Setup3 = Input {
+							Value = "0.16476225999811",
+							Expression = "Vector.NumberIn3",
+						},
+						Setup4 = Input {
+							Value = "0.027526180038743",
+							Expression = "Vector.NumberIn4",
+						},
+						RedExpression = Input { Value = "rands(0,1,r1*10000)*(s1-s2)+s2\n\n", },
+						GreenExpression = Input { Value = "rands(0,1,g1*10000)*(s3-s4)+s4", },
+						BlueExpression = Input { Value = "0", },
+						Image1 = Input {
+							SourceOp = "DG_Voronoi",
+							Source = "Output",
+						}
+					},
+					ViewInfo = OperatorInfo { Pos = { 274.667, 525.608 } },
+				},
+				Texture1 = Texture {
+					Inputs = {
+						ProcessAlpha = Input { Value = 0, },
+						Input = Input {
+							SourceOp = "nearestPixel",
+							Source = "Output",
+						},
+						Texture = Input {
+							SourceOp = "SampleFrame",
+							Source = "Output",
+						}
+					},
+					ViewInfo = OperatorInfo { Pos = { 706.429, 418.067 } },
+				},
+				nearestPixel = Custom {
+					NameSet = true,
+					Inputs = {
+						LUTIn1 = Input {
+							SourceOp = "CustomTool1LUTIn1",
+							Source = "Value",
+						},
+						LUTIn2 = Input {
+							SourceOp = "CustomTool1LUTIn2",
+							Source = "Value",
+						},
+						LUTIn3 = Input {
+							SourceOp = "CustomTool1LUTIn3",
+							Source = "Value",
+						},
+						LUTIn4 = Input {
+							SourceOp = "CustomTool1LUTIn4",
+							Source = "Value",
+						},
+						RedExpression = Input { Value = "int(r1*w)/w", },
+						GreenExpression = Input { Value = "int(g1*h)/h", },
+						Image1 = Input {
+							SourceOp = "WrapEdges",
+							Source = "Output",
+						}
+					},
+					ViewInfo = OperatorInfo { Pos = { 687.096, 482.089 } },
+				},
+				Blur1 = Blur {
+					Inputs = {
+						Filter = Input { Value = FuID { "Fast Gaussian" }, },
+						Input = Input {
+							SourceOp = "OutputColorSpaceTransform",
+							Source = "Output",
+						}
+					},
+					ViewInfo = OperatorInfo { Pos = { 2192.26, 7.92712 } },
+				},
+				BrightnessContrast1 = BrightnessContrast {
+					Inputs = {
+						Gain = Input { Value = 50, },
+						Input = Input {
+							SourceOp = "ChannelBooleans1",
+							Source = "Output",
+						}
+					},
+					ViewInfo = OperatorInfo { Pos = { 2192.26, 107.861 } },
+				},
+				ChannelBooleans1 = ChannelBoolean {
+					Inputs = {
+						Operation = Input { Value = 13, },
+						Background = Input {
+							SourceOp = "Blur1",
+							Source = "Output",
+						},
+						Foreground = Input {
+							SourceOp = "OutputColorSpaceTransform",
+							Source = "Output",
+						}
+					},
+					ViewInfo = OperatorInfo { Pos = { 2192.26, 59.0066 } },
+				},
+				DG_Voronoi = Fuse.Voronoi {
+					NameSet = true,
+					Inputs = {
+						Width = Input {
+							Value = 3840,
+							Expression = "SampleFrame.Output.Width",
+						},
+						Height = Input {
+							Value = 2160,
+							Expression = "SampleFrame.Output.Height",
+						},
+						Depth = Input { Value = 4, },
+						["Gamut.ColorSpaceNest"] = Input { Value = 1, },
+						["Gamut.ColorType"] = Input { Value = FuID { "Space" }, },
+						["Gamut.GammaSpaceNest"] = Input { Value = 1, },
+						["Gamut.GammaType"] = Input { Value = FuID { "Space" }, },
+						["Gamut.SLogVersion"] = Input { Value = FuID { "SLog2" }, },
+						Frequency = Input { Value = 100, },
+						EdgeFrequency = Input { Value = 500, },
+						Edge = Input { Value = 0.15, },
+						Seed = Input {
+							Value = 18,
+							Expression = "time",
+						}
+					},
+					ViewInfo = OperatorInfo { Pos = { 89.9934, 482.089 } },
+					Version = 10
+				},
+				Blur1_1 = Blur {
+					Inputs = {
+						Filter = Input { Value = FuID { "Fast Gaussian" }, },
+						XBlurSize = Input { Value = 0.25, },
+						Input = Input {
+							SourceOp = "DG_Voronoi",
+							Source = "Output",
+						}
+					},
+					ViewInfo = OperatorInfo { Pos = { 971.024, 465.577 } },
+				},
+				ChannelBooleans1_1 = ChannelBoolean {
+					Inputs = {
+						Operation = Input { Value = 13, },
+						Background = Input {
+							SourceOp = "Blur1_1",
+							Source = "Output",
+						},
+						Foreground = Input {
+							SourceOp = "DG_Voronoi",
+							Source = "Output",
+						}
+					},
+					ViewInfo = OperatorInfo { Pos = { 971.024, 506.977 } },
+				},
+				CustomTool1 = Custom {
+					Inputs = {
+						LUTIn1 = Input {
+							SourceOp = "CustomTool1LUTIn11",
+							Source = "Value",
+						},
+						LUTIn2 = Input {
+							SourceOp = "CustomTool1LUTIn21",
+							Source = "Value",
+						},
+						LUTIn3 = Input {
+							SourceOp = "CustomTool1LUTIn31",
+							Source = "Value",
+						},
+						LUTIn4 = Input {
+							SourceOp = "CustomTool1LUTIn41",
+							Source = "Value",
+						},
+						RedExpression = Input { Value = "if((r1+g1+b1)/3>0.000001 , 1, 0)", },
+						GreenExpression = Input { Value = "0", },
+						BlueExpression = Input { Value = "0", },
+						AlphaExpression = Input { Value = "0", },
+						Image1 = Input {
+							SourceOp = "ChannelBooleans1_1",
+							Source = "Output",
+						}
+					},
+					ViewInfo = OperatorInfo { Pos = { 971.024, 542.976 } },
+				},
+				Merge_diagnostic = Merge {
+					NameSet = true,
+					Inputs = {
+						Blend = Input { Expression = "Controls.OverlayCellPattern", },
+						ProcessGreen = Input { Value = 0, },
+						ProcessBlue = Input { Value = 0, },
+						ProcessAlpha = Input { Value = 0, },
+						Background = Input {
+							SourceOp = "Switch1",
+							Source = "Output",
+						},
+						Foreground = Input {
+							SourceOp = "dot17",
+							Source = "Output",
+						},
+						SubtractiveAdditive = Input { Value = 0.25, },
+						BurnIn = Input { Value = 1, },
+						PerformDepthMerge = Input { Value = 0, }
+					},
+					ViewInfo = OperatorInfo { Pos = { 2305.48, 250.068 } },
+				},
+				dot16 = PipeRouter {
+					NameSet = true,
+					Inputs = {
+						Input = Input {
+							SourceOp = "Dot9",
+							Source = "Output",
+						}
+					},
+					ViewInfo = PipeRouterInfo { Pos = { 90.9248, 250.068 } },
+					Colors = { TileColor = { R = 0.572549019607843, G = 0.572549019607843, B = 0.572549019607843 }, }
+				},
+				dot18 = PipeRouter {
+					NameSet = true,
+					Inputs = {
+						Input = Input {
+							SourceOp = "dot19",
+							Source = "Output",
+						}
+					},
+					ViewInfo = PipeRouterInfo { Pos = { 2161.74, 648.536 } },
+					Colors = { TileColor = { R = 0.572549019607843, G = 0.572549019607843, B = 0.572549019607843 }, }
+				},
+				dot19 = PipeRouter {
+					NameSet = true,
+					Inputs = {
+						Input = Input {
+							SourceOp = "subtract",
+							Source = "Output",
+						}
+					},
+					ViewInfo = PipeRouterInfo { Pos = { -240.81, 648.536 } },
+				},
+				dot17 = PipeRouter {
+					NameSet = true,
+					Inputs = {
+						Input = Input {
+							SourceOp = "CustomTool1",
+							Source = "Output",
+						}
+					},
+					ViewInfo = PipeRouterInfo { Pos = { 2305.48, 542.976 } },
+				}
+			},
+		},
+		MultiFrameRetimeSourceTime = BezierSpline {
+			SplineColor = { Red = 233, Green = 217, Blue = 243 },
+			CtrlWZoom = false,
+			KeyFrames = {
+				[15] = { 0, Flags = { Linear = true } }
+			}
+		},
+		coord_minusLUTIn1 = LUTBezier {
+			KeyColorSplines = {
+				[0] = {
+					[0] = { 0, RH = { 0.333333333333333, 0.333333333333333 }, Flags = { Linear = true } },
+					[1] = { 1, LH = { 0.666666666666667, 0.666666666666667 }, Flags = { Linear = true } }
+				}
+			},
+			SplineColor = { Red = 0, Green = 0, Blue = 0 },
+			CtrlWZoom = false,
+		},
+		coord_minusLUTIn2 = LUTBezier {
+			KeyColorSplines = {
+				[0] = {
+					[0] = { 0, RH = { 0.333333333333333, 0.333333333333333 }, Flags = { Linear = true } },
+					[1] = { 1, LH = { 0.666666666666667, 0.666666666666667 }, Flags = { Linear = true } }
+				}
+			},
+			SplineColor = { Red = 0, Green = 0, Blue = 0 },
+			CtrlWZoom = false,
+		},
+		coord_minusLUTIn3 = LUTBezier {
+			KeyColorSplines = {
+				[0] = {
+					[0] = { 0, RH = { 0.333333333333333, 0.333333333333333 }, Flags = { Linear = true } },
+					[1] = { 1, LH = { 0.666666666666667, 0.666666666666667 }, Flags = { Linear = true } }
+				}
+			},
+			SplineColor = { Red = 0, Green = 0, Blue = 0 },
+			CtrlWZoom = false,
+		},
+		coord_minusLUTIn4 = LUTBezier {
+			KeyColorSplines = {
+				[0] = {
+					[0] = { 0, RH = { 0.333333333333333, 0.333333333333333 }, Flags = { Linear = true } },
+					[1] = { 1, LH = { 0.666666666666667, 0.666666666666667 }, Flags = { Linear = true } }
+				}
+			},
+			SplineColor = { Red = 0, Green = 0, Blue = 0 },
+			CtrlWZoom = false,
+		},
+		wrapLUTIn1 = LUTBezier {
+			KeyColorSplines = {
+				[0] = {
+					[0] = { 0, RH = { 0.333333333333333, 0.333333333333333 }, Flags = { Linear = true } },
+					[1] = { 1, LH = { 0.666666666666667, 0.666666666666667 }, Flags = { Linear = true } }
+				}
+			},
+			SplineColor = { Red = 0, Green = 0, Blue = 0 },
+			CtrlWZoom = false,
+		},
+		wrapLUTIn2 = LUTBezier {
+			KeyColorSplines = {
+				[0] = {
+					[0] = { 0, RH = { 0.333333333333333, 0.333333333333333 }, Flags = { Linear = true } },
+					[1] = { 1, LH = { 0.666666666666667, 0.666666666666667 }, Flags = { Linear = true } }
+				}
+			},
+			SplineColor = { Red = 0, Green = 0, Blue = 0 },
+			CtrlWZoom = false,
+		},
+		wrapLUTIn3 = LUTBezier {
+			KeyColorSplines = {
+				[0] = {
+					[0] = { 0, RH = { 0.333333333333333, 0.333333333333333 }, Flags = { Linear = true } },
+					[1] = { 1, LH = { 0.666666666666667, 0.666666666666667 }, Flags = { Linear = true } }
+				}
+			},
+			SplineColor = { Red = 0, Green = 0, Blue = 0 },
+			CtrlWZoom = false,
+		},
+		wrapLUTIn4 = LUTBezier {
+			KeyColorSplines = {
+				[0] = {
+					[0] = { 0, RH = { 0.333333333333333, 0.333333333333333 }, Flags = { Linear = true } },
+					[1] = { 1, LH = { 0.666666666666667, 0.666666666666667 }, Flags = { Linear = true } }
+				}
+			},
+			SplineColor = { Red = 0, Green = 0, Blue = 0 },
+			CtrlWZoom = false,
+		},
+		RandPositionLUTIn1 = LUTBezier {
+			KeyColorSplines = {
+				[0] = {
+					[0] = { 0, RH = { 0.333333333333333, 0.333333333333333 }, Flags = { Linear = true } },
+					[1] = { 1, LH = { 0.666666666666667, 0.666666666666667 }, Flags = { Linear = true } }
+				}
+			},
+			SplineColor = { Red = 0, Green = 0, Blue = 0 },
+			CtrlWZoom = false,
+		},
+		RandPositionLUTIn2 = LUTBezier {
+			KeyColorSplines = {
+				[0] = {
+					[0] = { 0, RH = { 0.333333333333333, 0.333333333333333 }, Flags = { Linear = true } },
+					[1] = { 1, LH = { 0.666666666666667, 0.666666666666667 }, Flags = { Linear = true } }
+				}
+			},
+			SplineColor = { Red = 0, Green = 0, Blue = 0 },
+			CtrlWZoom = false,
+		},
+		RandPositionLUTIn3 = LUTBezier {
+			KeyColorSplines = {
+				[0] = {
+					[0] = { 0, RH = { 0.333333333333333, 0.333333333333333 }, Flags = { Linear = true } },
+					[1] = { 1, LH = { 0.666666666666667, 0.666666666666667 }, Flags = { Linear = true } }
+				}
+			},
+			SplineColor = { Red = 0, Green = 0, Blue = 0 },
+			CtrlWZoom = false,
+		},
+		RandPositionLUTIn4 = LUTBezier {
+			KeyColorSplines = {
+				[0] = {
+					[0] = { 0, RH = { 0.333333333333333, 0.333333333333333 }, Flags = { Linear = true } },
+					[1] = { 1, LH = { 0.666666666666667, 0.666666666666667 }, Flags = { Linear = true } }
+				}
+			},
+			SplineColor = { Red = 0, Green = 0, Blue = 0 },
+			CtrlWZoom = false,
+		},
+		CustomTool1LUTIn1 = LUTBezier {
+			KeyColorSplines = {
+				[0] = {
+					[0] = { 0, RH = { 0.333333333333333, 0.333333333333333 }, Flags = { Linear = true } },
+					[1] = { 1, LH = { 0.666666666666667, 0.666666666666667 }, Flags = { Linear = true } }
+				}
+			},
+			SplineColor = { Red = 0, Green = 0, Blue = 0 },
+			CtrlWZoom = false,
+		},
+		CustomTool1LUTIn2 = LUTBezier {
+			KeyColorSplines = {
+				[0] = {
+					[0] = { 0, RH = { 0.333333333333333, 0.333333333333333 }, Flags = { Linear = true } },
+					[1] = { 1, LH = { 0.666666666666667, 0.666666666666667 }, Flags = { Linear = true } }
+				}
+			},
+			SplineColor = { Red = 0, Green = 0, Blue = 0 },
+			CtrlWZoom = false,
+		},
+		CustomTool1LUTIn3 = LUTBezier {
+			KeyColorSplines = {
+				[0] = {
+					[0] = { 0, RH = { 0.333333333333333, 0.333333333333333 }, Flags = { Linear = true } },
+					[1] = { 1, LH = { 0.666666666666667, 0.666666666666667 }, Flags = { Linear = true } }
+				}
+			},
+			SplineColor = { Red = 0, Green = 0, Blue = 0 },
+			CtrlWZoom = false,
+		},
+		CustomTool1LUTIn4 = LUTBezier {
+			KeyColorSplines = {
+				[0] = {
+					[0] = { 0, RH = { 0.333333333333333, 0.333333333333333 }, Flags = { Linear = true } },
+					[1] = { 1, LH = { 0.666666666666667, 0.666666666666667 }, Flags = { Linear = true } }
+				}
+			},
+			SplineColor = { Red = 0, Green = 0, Blue = 0 },
+			CtrlWZoom = false,
+		},
+		CustomTool1LUTIn11 = LUTBezier {
+			KeyColorSplines = {
+				[0] = {
+					[0] = { 0, RH = { 0.333333333333333, 0.333333333333333 }, Flags = { Linear = true } },
+					[1] = { 1, LH = { 0.666666666666667, 0.666666666666667 }, Flags = { Linear = true } }
+				}
+			},
+			SplineColor = { Red = 0, Green = 0, Blue = 0 },
+			CtrlWZoom = false,
+			NameSet = true,
+		},
+		CustomTool1LUTIn21 = LUTBezier {
+			KeyColorSplines = {
+				[0] = {
+					[0] = { 0, RH = { 0.333333333333333, 0.333333333333333 }, Flags = { Linear = true } },
+					[1] = { 1, LH = { 0.666666666666667, 0.666666666666667 }, Flags = { Linear = true } }
+				}
+			},
+			SplineColor = { Red = 0, Green = 0, Blue = 0 },
+			CtrlWZoom = false,
+			NameSet = true,
+		},
+		CustomTool1LUTIn31 = LUTBezier {
+			KeyColorSplines = {
+				[0] = {
+					[0] = { 0, RH = { 0.333333333333333, 0.333333333333333 }, Flags = { Linear = true } },
+					[1] = { 1, LH = { 0.666666666666667, 0.666666666666667 }, Flags = { Linear = true } }
+				}
+			},
+			SplineColor = { Red = 0, Green = 0, Blue = 0 },
+			CtrlWZoom = false,
+			NameSet = true,
+		},
+		CustomTool1LUTIn41 = LUTBezier {
+			KeyColorSplines = {
+				[0] = {
+					[0] = { 0, RH = { 0.333333333333333, 0.333333333333333 }, Flags = { Linear = true } },
+					[1] = { 1, LH = { 0.666666666666667, 0.666666666666667 }, Flags = { Linear = true } }
+				}
+			},
+			SplineColor = { Red = 0, Green = 0, Blue = 0 },
+			CtrlWZoom = false,
+			NameSet = true,
+		}
+	}
+}
