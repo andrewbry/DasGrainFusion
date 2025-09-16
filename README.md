@@ -1,2 +1,2 @@
 # DasGrainFusion
-DasGrain port to Blackmgaic Fusion
+DasGrain port to Blackmagic Fusion
