@@ -1,27 +1,74 @@
--- Adaptaion on DasGrain for Fusion Studio
+-- Adaptation of DasGrain for Fusion Studio
 -- A regraining gizmo for nuke
 -- Originally created by Fabian Holtz https://www.nukepedia.com/gizmos/other/dasgrain
 -- Progress bar from https://www.steakunderwater.com/wesuckless/viewtopic.php?t=5095
 -- Adapted for Fusion by Andrew Buckley 
--- v0.66
+-- v0.68
 
--- progress bar
+-------progress bar
 local ui = fu.UIManager
 local disp = bmd.UIDispatcher(ui)
 local weight = 350
-local hight = 60
+local height = 60
 -------change Progress Bar color
 local pbarColor = "#FFCCAA"
 -------change Progress Bar Weight
 local pbarWeight = 350
-
+-------comp info
 local comp = fusion.CurrentComp
 local compattrs = comp:GetAttrs()
 local from = compattrs.COMPN_RenderStart
 local to = compattrs.COMPN_RenderEnd
 local currentf = compattrs.COMPN_CurrentTime
-
+-------get self
 local macro = self:GetTool()
+
+-------------------
+-- UI --
+-------------------
+
+if self.ID == "ABtn" then
+	win = disp:AddWindow({
+		ID = 'MainWin',
+		WindowTitle = 'Progress Bar',
+		Geometry = {1000, 500, weight, height},
+		BackgroundColorl = {R = 0.125, G = 0.125, B = 0.125, A = 1},
+	
+		ui:VGroup{
+			ID = 'root',
+			MinimumSize = {weight , height},
+			MaximumSize = {weight , height},
+			ui:HGroup{
+				ui:Label{ID = "framerange", Text = "Frames " .. macro["FRangeIn"][1] .. "-" .. macro["FRangeOut"][1], Alignment = {AlignHCenter = true,}, Weight = 1,},
+			},
+			ui:HGroup{
+				ui:Label{ID = "description", Text = "...", Alignment = {AlignLeft = true,}, Weight = 0.9,},
+				ui:Label{ID = "infolabel", Text = "", Alignment = {AlignRight = true,}, Weight = 0.1,},
+			},
+			ui:HGroup{
+				ui:TextEdit{ID = "progressbar", ReadOnly = true, HTML = '<body bgcolor="' .. pbarColor .. '">', MaximumSize = {1, 27}, MinimumSize = {1, 27},Hidden = false, Weight = 1, Alignment = {AlignHCenter = true,},},
+			},
+		},
+	})
+else
+	win = disp:AddWindow({
+		ID = 'MainWin',
+	})
+end
+
+function ProgressBar(v, n)
+    itm.progressbar.MaximumSize = {v, 27}
+    itm.progressbar.MinimumSize = {v, 27}
+	itm.infolabel.Text = string.format(n)
+end
+ 
+function win.On.MainWin.Close(ev)
+    disp:ExitLoop()
+end
+
+-------------------
+-- end UI --
+-------------------
 
 function tableContainsValue(tbl, value)
     for _, v in pairs(tbl) do
@@ -32,9 +79,25 @@ function tableContainsValue(tbl, value)
     return false
 end
 
+function getTool(name, m)
+    for i,t in pairs(m:GetChildrenList()) do
+        if string.match(t.Name, name) then
+            return t
+        end
+    end
+    return
+end
+
+function allConnected(m)
+	if m:FindMainInput(2):GetAttrs().INPB_Connected == true and m:FindMainInput(3):GetAttrs().INPB_Connected == true then
+		return true
+	else
+		return false
+	end
+end
+
 function generateFrameList(fc)
     local frame_list = {}
-
     if fc > 0 then
         local distance = (macro["FRangeOut"][1] - macro["FRangeIn"][1] ) / fc
         local frame = macro["FRangeIn"][1] + distance / 2
@@ -70,12 +133,14 @@ function setFrames(t,f,retime)
 	return newtimes
 end
 
-function getSampleRange(ch, ch_lst, f_lst, mm)
+function getSampleRange(ch, f_lst, mm)
+
+	-- force tool upadate
+	local dummy = mm:FindMainOutput(1).GetValue()
 
 	local inpmin = mm["NumberIn1"]
-	inpmin = mm["NumberIn1"]
 	local inpmax = mm["NumberIn2"]
-	inpmax = mm["NumberIn2"]
+
 	local min = inpmin[1]
 	local max = inpmax[1]
 
@@ -84,7 +149,7 @@ function getSampleRange(ch, ch_lst, f_lst, mm)
 		max = math.max(inpmax[i], max)
 	end
 
-	-- print("min -" .. min .. "  max - " .. max)
+	print("min:" .. min .. "  max: " .. max)
 	local result = {min, max}
 	
 	return result
@@ -104,91 +169,25 @@ end
 
 function getSample(k,sampler, s, sr)
 	-- set keyer value for slice
-	-- delete any animation and add new modifier
 	local sample_values = {}
 
 	-- set the keyer
 	k["NumberIn1"] = s
 	k["NumberIn2"] = sr
 
+	-- force tool update
+	local dummy = sampler:FindMainOutput(1).GetValue()
+
 	-- get intensity data for this slice
-	-- I get the values twice as fusion seems to not update the values properly on the first query
+	-- numberin1 is grain delta average luma of frames averaged at current luma slice
+	-- numberin2 is denoised image average luma of frames averaged at current luma slice
+	-- numberin3 is full white area averaged at current luma slice
 	local sample_values = {sampler["NumberIn1"][1], sampler["NumberIn2"][1], sampler["NumberIn3"][1]}
-	sample_values = {sampler["NumberIn1"][1], sampler["NumberIn2"][1], sampler["NumberIn3"][1]}
 
 	return sample_values
 end
 
-function getTool(name, m)
-    for i,t in pairs(m:GetChildrenList()) do
-        if string.match(t.Name, name) then
-            return t
-        end
-    end
-    return
-end
-
-function allConnected(m)
-	-- if m:FindMainInput(1):GetAttrs().INPB_Connected == true and m:FindMainInput(2):GetAttrs().INPB_Connected == true and m:FindMainInput(3):GetAttrs().INPB_Connected == true then
-	if m:FindMainInput(2):GetAttrs().INPB_Connected == true and m:FindMainInput(3):GetAttrs().INPB_Connected == true then
-		return true
-	else
-		return false
-	end
-end
-
-if self.ID == "ABtn" then
-	win = disp:AddWindow({
-		ID = 'MainWin',
-		WindowTitle = 'Progress Bar',
-		Geometry = {1000, 500, weight, hight},
-		BackgroundColorl = {R = 0.125, G = 0.125, B = 0.125, A = 1},
-	
-		ui:VGroup{
-			ID = 'root',
-			MinimumSize = {weight , hight},
-			MaximumSize = {weight , hight},
-			ui:HGroup{
-				Weight = 0.5,
-				ui:Label{ID = "framerange", Text = "Frames " .. macro["FRangeIn"][1] .. "-" .. macro["FRangeOut"][1], Alignment = {AlignHCenter = true,},},
-			},
-			ui:HGroup{
-				Weight = 0.05,
-				ui:VGap(0,2),
-				ui:Button{ID = "button", Text = "Analyse", Flat = false,},
-				ui:VGap(0,1),
-				ui:Label{ID = "infolabel", Text = "", Alignment = {AlignHCenter = true,},},
-			},
-			ui:HGroup{
-			Weight = 0.5,
-			ui:TextEdit{ID = "progressbar", ReadOnly = true, HTML = '<body bgcolor="' .. pbarColor .. '">', MaximumSize = {1, 27}, MinimumSize = {1, 27},Hidden = false,},
-			},
-		},
-	})
-else
-	win = disp:AddWindow({
-		ID = 'MainWin',
-	})
-end
-
-function ProgressBar(v, n)
-    itm.progressbar.MaximumSize = {v, 27}
-    itm.progressbar.MinimumSize = {v, 27}
-    -- itm.infolabel.Text = string.format(n) .. "%"
-	itm.infolabel.Text = string.format(n)
-end
- 
-function win.On.MainWin.Close(ev)
-    disp:ExitLoop()
-end
-
-function win.On.button.Clicked(ev)
-	itm.progressbar.Hidden = false
-	itm.button.Flat = true
-	itm.button.Text = "Running"
-
-	-- comp:Lock()
-	-- comp:StartUndo("DasGrain")
+function analyseResponse()
 	local channel_list = {'Red', 'Green', 'Blue'}
 	local keyer = getTool("CustomKeyer", macro)
 	local set_channel = getTool("SetChannel", macro)
@@ -197,7 +196,7 @@ function win.On.button.Clicked(ev)
 	local grain_response = getTool("GrainResponse", macro)
 	local retime = getTool("MultiFrameRetime", macro)
 	local frameavg = getTool("BlendFrames", macro)
-
+	
 	local pixel = keyer:FindMainOutput(1):GetDoD()[3] * keyer:FindMainOutput(1):GetDoD()[4] 
 
 	local sample_count = macro["NSamples"][1]
@@ -209,12 +208,16 @@ function win.On.button.Clicked(ev)
 	local ch = 0
 	
 	for index, channel in pairs(channel_list) do
-		-- set channel
+		-- set channel and ui
 		set_channel.ToRed = ch
-		itm.button.Text = channel .. " Min/Max"
+		itm.description.Text = channel .. " Min/Max"
+		-- disp:Refresh()
+		itm.description.Update()
+		print(channel)
 
 		-- get min max luma avarage over the amount of frames for the current channel
-		local sample_range = getSampleRange(channel, channel_list, retimed_frame_list, minmax_sampler)
+		local sample_range = getSampleRange(channel, retimed_frame_list, minmax_sampler)
+		sample_range = getSampleRange(channel, retimed_frame_list, minmax_sampler) -- run twice to force update
 
 		-- gets the radius needed for the sample list, radius is the values for the luma slice
 		local sample_radius = (sample_range[2] - sample_range[1]) / sample_count / 2
@@ -226,26 +229,35 @@ function win.On.button.Clicked(ev)
 		local emptyvalues = {}
 		local spline, splineout
 
-		-- go through the sample list
+		-- for ui progress bar
 		listlength = table.getn(sample_list)
 		dictlength = 0
 
 		-- set the frame blend to average all the frames we are going to slice through
 		frameavg["Frames"] = frame_count
 		
-		for key, sample in pairs(sample_list) do	
-			local sample_values = getSample(keyer, grain_sampler, sample, sample_radius)
-
-			-- create lut for channel
-			-- ProgressBar(math.ceil((dictlength / listlength) * pbarWeight), math.ceil(dictlength / listlength * 100))
-			itm.button.Text = channel .. " Channel"
+		for key, sample in pairs(sample_list) do
+			itm.description.Text = channel .. " Channel"
 			ProgressBar(math.ceil((dictlength / listlength) * pbarWeight), tonumber(string.format("%.2f", sample)))
+
+			local sample_values = getSample(keyer, grain_sampler, sample, sample_radius)
+			sample_values = getSample(keyer, grain_sampler, sample, sample_radius) -- run twice to force update
+			print("slice: " .. key .. " luma slice:" .. sample)
+			
+			-- create lut for channel
 			if sample_values[3] * pixel >= 10 then
+				-- image / full white , grain / full white ... this gets our grain response
+				-- done in a log space 0 - 1
 				lutvalues[sample_values[2] / sample_values[3]] = {sample_values[1] / sample_values[3]}
+				print("image luma:" .. sample_values[1] .. " grain luma:" .. sample_values[2] .. " 100% luma:" .. sample_values[3])
+				print("x:" .. sample_values[2] / sample_values[3] .. " y:" ..sample_values[1] / sample_values[3])
+			else
+				print("area too small")
 			end
 			dictlength = dictlength + 1
+			-- bmd.wait(0.005)
 		end
-
+		
 		emptyvalues[0] = {0}
 		local lutcurve = grain_response[channel]
 		-- gets the spline output that is connected to the input,
@@ -263,46 +275,33 @@ function win.On.button.Clicked(ev)
 			spline:SetKeyFrames(lutvalues, true)
 			spline:DeleteKeyFrames(-0.000001, 0.000001)
 		end
-		-- next channel
-		ch = ch + 1
-		
+		ch = ch + 1	
 	end
-
-	-- comp:EndUndo(true)
-	-- comp:Unlock()
 
 	disp:ExitLoop()
 	win:Hide()
 end
 
--- MAIN FUNCTION
-
-if not tool then
-	tool = composition.ActiveTool
-	if not tool then
-		comp:AskUser("Tool Script Error", {
-			{"description", "Text", Lines=5, Default="This is a tool script, you must select a tool in the flow to run this script", ReadOnly=true, Wrap=true},
-		})
-
-		do return end
-	end
-end
+-------------------
+-- MAIN FUNCTION --
+-------------------
 
 if allConnected(macro) and self.ID == "ABtn" then
+	-- check if inputs are connected in order to run successfully and run ui
 	win:Show()
 	itm = win:GetItems()
-	itm.MainWin.MinimumSize = {weight , hight}
-	itm.MainWin.MaximumSize = {weight , hight}
+	itm.description.Text = "Running"
 	
-	disp:RunLoop()
-	win:Hide()
+	disp:RunLoop(analyseResponse())
+	
 elseif self.ID == "FRBtn" then
-	-- we get the second inputs output tool
+	-- we get the second inputs output tools reader frame range
 	local plateinput = macro:FindMainInput(2):GetConnectedOutput():GetTool()
 	macro["FRangeIn"][1] = plateinput["GlobalIn"][1]
 	macro["FRangeOut"][1] = plateinput["GlobalOut"][1]
 
 elseif self.ID == "FBtn" then
+	-- set the reference frame
 	macro["RefFrame"][1] = comp:GetAttrs().COMPN_CurrentTime
 else
 	comp:AskUser("Tool Script Error", {

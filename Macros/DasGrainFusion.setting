@@ -1,8 +1,8 @@
 --[[-- 
 https://au.linkedin.com/in/andrew-buckley-6a54705b
 Written by : Andrew Buckley
-Written on : June, 2025
-version 0.67
+Written on : September, 2025
+version 0.68
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
@@ -1661,7 +1661,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 							INP_Integer = false,
 							INP_External = false,
 							LINKID_DataType = "Number",
-							BTNCS_Execute = "@scripts:/Tool/DasGrain/DasGrain.lua",
+							BTNCS_Execute = "@scripts:/Tool/DasGrainFusion.lua",
 							INPID_InputControl = "ButtonControl",
 							INP_SplineType = "Default",
 							LINKS_Name = "Set Reference Frame",
@@ -1670,7 +1670,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 							INP_Integer = false,
 							INP_External = false,
 							LINKID_DataType = "Number",
-							BTNCS_Execute = "@scripts:/Tool/DasGrain/DasGrain.lua",
+							BTNCS_Execute = "@scripts:/Tool/DasGrainFusion.lua",
 							INPID_InputControl = "ButtonControl",
 							INP_SplineType = "Default",
 							LINKS_Name = "Set Frame Range From Raw Plate Range",
