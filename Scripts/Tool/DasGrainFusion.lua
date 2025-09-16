@@ -136,10 +136,12 @@ end
 function getSampleRange(ch, f_lst, mm)
 
 	-- force tool upadate
-	local dummy = mm:FindMainOutput(1).GetValue()
+	-- local dummy = mm:FindMainOutput(1).GetValue()
 
 	local inpmin = mm["NumberIn1"]
+	inpmin = mm["NumberIn1"]
 	local inpmax = mm["NumberIn2"]
+	inpmax = mm["NumberIn2"]
 
 	local min = inpmin[1]
 	local max = inpmax[1]
@@ -176,13 +178,14 @@ function getSample(k,sampler, s, sr)
 	k["NumberIn2"] = sr
 
 	-- force tool update
-	local dummy = sampler:FindMainOutput(1).GetValue()
+	-- local dummy = sampler:FindMainOutput(1).GetValue()
 
 	-- get intensity data for this slice
 	-- numberin1 is grain delta average luma of frames averaged at current luma slice
 	-- numberin2 is denoised image average luma of frames averaged at current luma slice
 	-- numberin3 is full white area averaged at current luma slice
 	local sample_values = {sampler["NumberIn1"][1], sampler["NumberIn2"][1], sampler["NumberIn3"][1]}
+	sample_values = {sampler["NumberIn1"][1], sampler["NumberIn2"][1], sampler["NumberIn3"][1]}
 
 	return sample_values
 end
