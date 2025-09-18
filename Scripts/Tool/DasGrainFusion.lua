@@ -79,6 +79,23 @@ function tableContainsValue(tbl, value)
     return false
 end
 
+function splitString(inputstr, sep)
+   -- if sep is null, set it as space
+   if sep == nil then
+      sep = '%s'
+   end
+   -- define an array
+   local t={}
+   -- split string based on sep   
+   for str in string.gmatch(inputstr, '([^'..sep..']+)') 
+   do
+      -- insert the substring in table
+      table.insert(t, str)
+   end
+   -- return the array
+   return t
+end
+
 function getTool(name, m)
     for i,t in pairs(m:GetChildrenList()) do
         if string.match(t.Name, name) then
@@ -96,7 +113,7 @@ function allConnected(m)
 	end
 end
 
-function generateFrameList(fc)
+function generateFrameList(fc,addf)
     local frame_list = {}
     if fc > 0 then
         local distance = (macro["FRangeOut"][1] - macro["FRangeIn"][1] ) / fc
@@ -111,6 +128,16 @@ function generateFrameList(fc)
         end
     end
 
+	for _, f in pairs(addf) do
+		f = tonumber(f)
+		if f >= macro["FRangeIn"][1] and f <= macro["FRangeOut"][1] then
+			if not tableContainsValue(frame_list, f) then
+				table.insert(frame_list, f)
+			end
+		end
+	end
+
+	table.sort(frame_list)
     return frame_list
 end
 
@@ -134,14 +161,10 @@ function setFrames(t,f,retime)
 end
 
 function getSampleRange(ch, f_lst, mm)
-
-	-- force tool upadate
-	-- local dummy = mm:FindMainOutput(1).GetValue()
-
 	local inpmin = mm["NumberIn1"]
-	inpmin = mm["NumberIn1"]
 	local inpmax = mm["NumberIn2"]
-	inpmax = mm["NumberIn2"]
+	inpmin = mm["NumberIn1"] -- twice to force update
+	inpmax = mm["NumberIn2"] -- twice to force update
 
 	local min = inpmin[1]
 	local max = inpmax[1]
@@ -177,9 +200,6 @@ function getSample(k,sampler, s, sr)
 	k["NumberIn1"] = s
 	k["NumberIn2"] = sr
 
-	-- force tool update
-	-- local dummy = sampler:FindMainOutput(1).GetValue()
-
 	-- get intensity data for this slice
 	-- numberin1 is grain delta average luma of frames averaged at current luma slice
 	-- numberin2 is denoised image average luma of frames averaged at current luma slice
@@ -199,12 +219,15 @@ function analyseResponse()
 	local grain_response = getTool("GrainResponse", macro)
 	local retime = getTool("MultiFrameRetime", macro)
 	local frameavg = getTool("BlendFrames", macro)
+	local exeswitch = getTool("exe_switch", macro)
 	
 	local pixel = keyer:FindMainOutput(1):GetDoD()[3] * keyer:FindMainOutput(1):GetDoD()[4] 
 
 	local sample_count = macro["NSamples"][1]
 	local frame_count = macro["NFrames"][1]
-	local frame_list = generateFrameList(frame_count)
+	local extra_frames = splitString(macro["AddFrames"][1],nil)
+
+	local frame_list = generateFrameList(frame_count,extra_frames)
 	local retimed_frame_list = setFrames(tool, frame_list, retime)
 	local listlength = 0
 	local dictlength = 0
@@ -214,10 +237,9 @@ function analyseResponse()
 		-- set channel and ui
 		set_channel.ToRed = ch
 		itm.description.Text = channel .. " Min/Max"
-		-- disp:Refresh()
-		itm.description.Update()
+		exeswitch["Source"] = 2 -- set to minmax probe
 		print(channel)
-
+		
 		-- get min max luma avarage over the amount of frames for the current channel
 		local sample_range = getSampleRange(channel, retimed_frame_list, minmax_sampler)
 		sample_range = getSampleRange(channel, retimed_frame_list, minmax_sampler) -- run twice to force update
@@ -242,10 +264,10 @@ function analyseResponse()
 		for key, sample in pairs(sample_list) do
 			itm.description.Text = channel .. " Channel"
 			ProgressBar(math.ceil((dictlength / listlength) * pbarWeight), tonumber(string.format("%.2f", sample)))
+			exeswitch["Source"] = 1 -- set to keyer probe
 
 			local sample_values = getSample(keyer, grain_sampler, sample, sample_radius)
 			sample_values = getSample(keyer, grain_sampler, sample, sample_radius) -- run twice to force update
-			print("slice: " .. key .. " luma slice:" .. sample)
 			
 			-- create lut for channel
 			if sample_values[3] * pixel >= 10 then
@@ -258,7 +280,7 @@ function analyseResponse()
 				print("area too small")
 			end
 			dictlength = dictlength + 1
-			-- bmd.wait(0.005)
+			bmd.wait(0.05)
 		end
 		
 		emptyvalues[0] = {0}
@@ -281,6 +303,7 @@ function analyseResponse()
 		ch = ch + 1	
 	end
 
+	exeswitch["Source"] = 0 -- set to main
 	disp:ExitLoop()
 	win:Hide()
 end
@@ -297,7 +320,7 @@ if allConnected(macro) and self.ID == "ABtn" then
 	
 	disp:RunLoop(analyseResponse())
 	
-elseif self.ID == "FRBtn" then
+elseif allConnected(macro) and self.ID == "FRBtn" then
 	-- we get the second inputs output tools reader frame range
 	local plateinput = macro:FindMainInput(2):GetConnectedOutput():GetTool()
 	macro["FRangeIn"][1] = plateinput["GlobalIn"][1]
