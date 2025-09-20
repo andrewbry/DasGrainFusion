@@ -2,7 +2,7 @@
 https://au.linkedin.com/in/andrew-buckley-6a54705b
 Written by : Andrew Buckley
 Written on : September, 2025
-version 0.70
+version 0.80
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
@@ -15,9 +15,9 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 {
     Tools = ordered() {
-        DasGrainFusion_V_0_70 = MacroOperator {
+        DasGrainFusion_V_0_80 = MacroOperator {
 			Inputs = ordered() {
-				Comments = Input { Value = "DasGrain by Fabian Holtz\nFusion port by Andrew Buckley\nv0.70", },
+				Comments = Input { Value = "DasGrain by Fabian Holtz\nFusion port by Andrew Buckley\nv0.80", },
 				CompInput = InstanceInput {
 					SourceOp = "Comp_Input",
 					Source = "Input",
@@ -36,7 +36,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 				ExternalGrainInput = InstanceInput {
 					SourceOp = "external_grain_switch",
 					Source = "Input1",
-					Name = "External_Grain_Input",
+					Name = "External Grain Input",
 				},
 				EffectMask = InstanceInput {
 					SourceOp = "Effect_Mask",
@@ -63,6 +63,11 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 					Source = "Depth",
 					Page = "Controls",
 				},
+				-- PixelAspect = InstanceInput {
+				-- 	SourceOp = "Controls",
+				-- 	Source = "PixelAspectctrl",
+				-- 	Page = "Controls",
+				-- },
 				-- Divider2 = InstanceInput {
 				-- 	SourceOp = "Controls",
 				-- 	Source = "Separator1",
@@ -395,8 +400,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 						GrainResponseRed = LUTBezier {
 							KeyColorSplines = {
 								[0] = {
-									[0] = { 0, RH = { 0.333333333333333, 0.333333333333333 }, Flags = { Linear = true } },
-									[1] = { 1, LH = { 0.666666666666667, 0.666666666666667 }, Flags = { Linear = true } }
+									[0] = { 0, Flags = { Linear = true } }
 								}
 							},
 							SplineColor = { Red = 255, Green = 52, Blue = 52 },
@@ -413,8 +417,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 						GrainResponseGreen = LUTBezier {
 							KeyColorSplines = {
 								[0] = {
-									[0] = { 0, RH = { 0.333333333333333, 0.333333333333333 }, Flags = { Linear = true } },
-									[1] = { 1, LH = { 0.666666666666667, 0.666666666666667 }, Flags = { Linear = true } }
+									[0] = { 0, Flags = { Linear = true } }
 								}
 							},
 							SplineColor = { Red = 0, Green = 255, Blue = 0 },
@@ -422,8 +425,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 						GrainResponseBlue = LUTBezier {
 							KeyColorSplines = {
 								[0] = {
-									[0] = { 0, RH = { 0.333333333333333, 0.333333333333333 }, Flags = { Linear = true } },
-									[1] = { 1, LH = { 0.666666666666667, 0.666666666666667 }, Flags = { Linear = true } }
+									[0] = { 0, Flags = { Linear = true } }
 								}
 							},
 							SplineColor = { Red = 68, Green = 68, Blue = 255 },
@@ -993,7 +995,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 							Value = 0,
 							Expression = "Controls.ReplaceG",
 						},
-						ApplyMaskInverted = Input { Expression = ":if DasGrainFusion_V_0_70.EffectMask then return \"0\" else return \"1\" end", },
+						ApplyMaskInverted = Input { Expression = ":if DasGrainFusion_V_0_80.EffectMask then return \"0\" else return \"1\" end", },
 						Background = Input {
 							SourceOp = "Dot9",
 							Source = "Output",
@@ -1648,6 +1650,15 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 							INP_SplineType = "Default",
 							LINKS_Name = "Luminance",
 						},
+						-- PixelAspectctrl = {
+						-- 	LINKS_Name = "Pixel Aspect Ratio",
+						-- 	LINKID_DataType = "Point",
+						-- 	INPID_InputControl = "OffsetControl",
+						-- 	INP_External = false,
+						-- 	INP_Passive = true,
+						-- 	INP_DefaultX = 1,
+						-- 	INP_DefaultY = 1,
+						-- },
 						NumberOfSamples = {
 							INP_MaxAllowed = 1000000,
 							INP_Integer = true,
@@ -2053,14 +2064,6 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 				add_scatter = ChannelBoolean {
 					CtrlWShown = false,
 					NameSet = true,
-					CustomData = {
-						SxSFilename = "Reactor:\\Deploy\\Macros\\nuke2fusion\\add.setting",
-						Path = {
-							Map = {
-								["Setting:"] = "Macros:\\nuke2fusion\\"
-							}
-						}
-					},
 					Inputs = {
 						Operation = Input { Value = 1, },
 						Background = Input {
@@ -2314,6 +2317,10 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 							Value = 2160,
 							Expression = "SampleFrame.Output.Height",
 						},
+						PixelAspect = Input {
+							Value = { 1, 1 },
+							Expression = "Point(SampleFrame.Output.OriginalXScale, SampleFrame.Output.OriginalYScale)",
+						},
 						Depth = Input { Value = 4, },
 						["Gamut.ColorSpaceNest"] = Input { Value = 1, },
 						["Gamut.ColorType"] = Input { Value = FuID { "Space" }, },
@@ -2322,6 +2329,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 						["Gamut.SLogVersion"] = Input { Value = FuID { "SLog2" }, },
 						Frequency = Input { Value = 100, },
 						EdgeFrequency = Input { Value = 500, },
+						AspectRatio = Input { Expression = "SampleFrame.Output.OriginalXScale/SampleFrame.Output.OriginalYScale" },
 						Edge = Input { Value = 0.15, },
 						Seed = Input {
 							Value = 18,
@@ -2496,6 +2504,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 				external_grain_switch = Switch {
 					CtrlWShown = false,
 					NameSet = true,
+					Source = Input { Expression = "Controls.ExternalG", },
 					Inputs = {
 						Input0 = Input {
 							SourceOp = "Dot9",

@@ -3,7 +3,7 @@
 -- Originally created by Fabian Holtz https://www.nukepedia.com/gizmos/other/dasgrain
 -- Progress bar from https://www.steakunderwater.com/wesuckless/viewtopic.php?t=5095
 -- Adapted for Fusion by Andrew Buckley 
--- v0.68
+-- v0.80
 
 -------progress bar
 local ui = fu.UIManager
@@ -232,12 +232,16 @@ function analyseResponse()
 	local listlength = 0
 	local dictlength = 0
 	local ch = 0
+	local lutx = 0
+	local luty = 0
 	
 	for index, channel in pairs(channel_list) do
 		-- set channel and ui
 		set_channel.ToRed = ch
 		itm.description.Text = channel .. " Min/Max"
-		exeswitch["Source"] = 2 -- set to minmax probe
+		-- diagnostic --
+		-- exeswitch["Source"] = 2 -- set to minmax probe
+		-- diagnostic --
 		print(channel)
 		
 		-- get min max luma avarage over the amount of frames for the current channel
@@ -254,33 +258,45 @@ function analyseResponse()
 		local emptyvalues = {}
 		local spline, splineout
 
+
 		-- for ui progress bar
 		listlength = table.getn(sample_list)
 		dictlength = 0
 
 		-- set the frame blend to average all the frames we are going to slice through
-		frameavg["Frames"] = frame_count
+		frameavg["Frames"] = frame_count-1
 		
 		for key, sample in pairs(sample_list) do
 			itm.description.Text = channel .. " Channel"
 			ProgressBar(math.ceil((dictlength / listlength) * pbarWeight), tonumber(string.format("%.2f", sample)))
-			exeswitch["Source"] = 1 -- set to keyer probe
+			-- diagnostic --
+			-- exeswitch["Source"] = 1 -- set to keyer probe
+			-- diagnostic --
 
 			local sample_values = getSample(keyer, grain_sampler, sample, sample_radius)
 			sample_values = getSample(keyer, grain_sampler, sample, sample_radius) -- run twice to force update
 			
 			-- create lut for channel
 			if sample_values[3] * pixel >= 10 then
-				-- image / full white , grain / full white ... this gets our grain response
-				-- done in a log space 0 - 1
-				lutvalues[sample_values[2] / sample_values[3]] = {sample_values[1] / sample_values[3]}
+				lutx = sample_values[2] / sample_values[3] -- image / full white
+				luty = sample_values[1] / sample_values[3] -- grain / full white 
+				lutvalues[lutx] = {luty} -- grain response LUT x,y
+				-- lutvalues[sample_values[2] / sample_values[3]] = {sample_values[1] / sample_values[3]}
 				print("image luma:" .. sample_values[1] .. " grain luma:" .. sample_values[2] .. " 100% luma:" .. sample_values[3])
 				print("x:" .. sample_values[2] / sample_values[3] .. " y:" ..sample_values[1] / sample_values[3])
 			else
 				print("area too small")
 			end
+
+			-- flat tangents
+			if dictlength == 0 then
+				lutvalues[lutx-0.1] = {luty}
+			elseif key == listlength then
+				lutvalues[lutx+0.1] = {luty}
+			end
+
 			dictlength = dictlength + 1
-			bmd.wait(0.05)
+			bmd.wait(0.01)
 		end
 		
 		emptyvalues[0] = {0}
@@ -303,7 +319,9 @@ function analyseResponse()
 		ch = ch + 1	
 	end
 
-	exeswitch["Source"] = 0 -- set to main
+	-- diagnostic --
+	-- exeswitch["Source"] = 0 -- set to main
+	-- diagnostic --
 	disp:ExitLoop()
 	win:Hide()
 end
