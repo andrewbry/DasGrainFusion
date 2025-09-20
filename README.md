@@ -4,7 +4,7 @@ DasGrain port to Blackmagic Fusion
 To Do:
     
 - Automatically detect minimum frame range of raw plate/denoised plate
-- ~~Pixel aspect ratio for scattering not yet implemented ~~
+- ~~Pixel aspect ratio for scattering not yet implemented~~
 - Stereoscopic functionality
 - Bug fix the Lua script when it queries the probe modifiers used in the analysis
 - Improve/speed up analysis
