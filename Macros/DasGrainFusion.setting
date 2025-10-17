@@ -1,8 +1,8 @@
 --[[-- 
 https://au.linkedin.com/in/andrew-buckley-6a54705b
 Written by : Andrew Buckley
-Written on : September, 2025
-version 0.80
+Written on : October, 2025
+version 0.81
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
@@ -15,21 +15,21 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 {
     Tools = ordered() {
-        DasGrainFusion_V_0_80 = MacroOperator {
+        DasGrainFusion_V_0_81 = MacroOperator {
 			Inputs = ordered() {
-				Comments = Input { Value = "DasGrain by Fabian Holtz\nFusion port by Andrew Buckley\nv0.80", },
+				Comments = Input { Value = "DasGrain by Fabian Holtz\nFusion port by Andrew Buckley\nv0.81", },
 				CompInput = InstanceInput {
-					SourceOp = "Comp_Input",
+					SourceOp = "null_comp_input",
 					Source = "Input",
 					Name = "Comp Input",
 				},
 				PlateInput = InstanceInput {
-					SourceOp = "Plate_Input",
+					SourceOp = "null_raw_input",
 					Source = "Input",
 					Name = "Raw Input",
 				},
 				DegrainedInput = InstanceInput {
-					SourceOp = "Denoised_Input",
+					SourceOp = "null_degrained_input",
 					Source = "Input",
 					Name = "Denoised Input",
 				},
@@ -39,7 +39,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 					Name = "External Grain Input",
 				},
 				EffectMask = InstanceInput {
-					SourceOp = "Effect_Mask",
+					SourceOp = "null_mask_input",
 					Source = "Input",
 					Name = "Mask",
 				},
@@ -59,7 +59,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 					Page = "Controls",
 				},
 				InputDepth = InstanceInput {
-					SourceOp = "depth",
+					SourceOp = "depth_comp",
 					Source = "Depth",
 					Page = "Controls",
 				},
@@ -119,6 +119,12 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 					Default = 1,
 					Page = "Controls",
 				},
+				DegrainAmountMask = InstanceInput {
+					SourceOp = "red_luma_mask",
+					Source = "MaskChannel",
+					Default = 0,
+					Page = "Controls",
+				},
 				LbAnalyse = InstanceInput {
 					SourceOp = "Controls",
 					Source = "LabelAnalyse",
@@ -163,6 +169,12 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 					SourceOp = "Controls",
 					Source = "Analyse",
 					Page = "Controls",
+				},
+				AnalyseMask = InstanceInput {
+					SourceOp = "green_analyse_mask",
+					Source = "MaskChannel",
+					Page = "Controls",
+					Default = 1,
 				},
 				-- replace
 				TbReplace = InstanceInput {
@@ -278,22 +290,21 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 				}
 			},
 			ViewInfo = GroupInfo {
-				Pos = { -1701.38, -1267.01 },
+				Pos = { -1363.81, -1290.51 },
 				Flags = {
 					AllowPan = false,
 					ConnectedSnap = true,
 					AutoSnap = true,
 					RemoveRouters = true
 				},
-				Size = { 6089.16, 3002.82, 3368.64, 409.697 },
+				Size = { 7021.02, 2910.47, 3590.51, 24.2424 },
 				Direction = "Horizontal",
 				PipeStyle = "Direct",
 				Scale = 1,
-				Offset = { 0, 0 }
+				Offset = { 86.6667, 118.788 }
 			},
 			Tools = ordered() {
 				InputColorSpaceTransform = ColorSpaceTransform {
-					CtrlWShown = false,
 					NameSet = true,
 					Inputs = {
 						InputColorSpace = Input { Value = FuID { "ACES_AP1_COLORSPACE" }, },
@@ -305,15 +316,14 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 						UseWhitePointAdaptation = Input { Value = 0, },
 						PreDividePostMultiply = Input { Value = 0, },
 						Input = Input {
-							SourceOp = "depth",
+							SourceOp = "depth_comp",
 							Source = "Output",
 						}
 					},
-					ViewInfo = OperatorInfo { Pos = { -2720.91, -1.14772 } },
+					ViewInfo = OperatorInfo { Pos = { -2554.13, 313.557 } },
 					Version = 1
 				},
-				depth = ChangeDepth {
-					CtrlWShown = false,
+				depth_comp = ChangeDepth {
 					NameSet = true,
 					Inputs = {
 						NoiseSample = Input {
@@ -333,19 +343,13 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 						},
 						Depth = Input { Value = 0, },
 						Input = Input {
-							SourceOp = "Comp_Input",
+							SourceOp = "null_comp_input",
 							Source = "Output",
 						}
 					},
-					ViewInfo = OperatorInfo { Pos = { -2889.42, -1.14772 } },
+					ViewInfo = OperatorInfo { Pos = { -2686.64, 314.872 } },
 				},
-				Comp_Input = PipeRouter {
-					NameSet = true,
-					ViewInfo = PipeRouterInfo { Pos = { -3044.15, -1.14772 } },
-					Colors = { TileColor = { R = 0.572549019607843, G = 0.572549019607843, B = 0.572549019607843 }, }
-				},
-				Dot8 = PipeRouter {
-					CtrlWShown = false,
+				dg_dot13 = PipeRouter {
 					NameSet = true,
 					Inputs = {
 						Input = Input {
@@ -353,18 +357,17 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 							Source = "Output",
 						}
 					},
-					ViewInfo = PipeRouterInfo { Pos = { -1632.67, -0.766968 } },
+					ViewInfo = PipeRouterInfo { Pos = { -1465.89, 313.938 } },
 				},
-				Dot10 = PipeRouter {
-					CtrlWShown = false,
+				dg_dot14 = PipeRouter {
 					NameSet = true,
 					Inputs = {
 						Input = Input {
-							SourceOp = "Dot8",
+							SourceOp = "dg_dot13",
 							Source = "Output",
 						}
 					},
-					ViewInfo = PipeRouterInfo { Pos = { -1616.67, 229.155 } },
+					ViewInfo = PipeRouterInfo { Pos = { -1449.89, 543.86 } },
 				},
 				GrainResponse = ColorCurves {
 					PickColor = true,
@@ -391,11 +394,11 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 						NumberOfSamplesOnMatchCurve = Input { Value = 64, },
 						IgnoreTransparent = Input { Value = 1, },
 						Input = Input {
-							SourceOp = "Dot10",
+							SourceOp = "dg_dot14",
 							Source = "Output",
 						}
 					},
-					ViewInfo = OperatorInfo { Pos = { -1393.02, 229.155 } },
+					ViewInfo = OperatorInfo { Pos = { -1226.24, 543.86 } },
 					Tools = {
 						GrainResponseRed = LUTBezier {
 							KeyColorSplines = {
@@ -452,7 +455,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 						SampleReference = Input {
 						},
 						Input = Input {
-							SourceOp = "Dot",
+							SourceOp = "dg_dot4",
 							Source = "Output",
 						},
 						ReferenceImage = Input {
@@ -468,7 +471,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 						EndRenderScripts = Input {
 						}
 					},
-					ViewInfo = OperatorInfo { Pos = { -1389.4, 484.151 } },
+					ViewInfo = OperatorInfo { Pos = { -1222.62, 798.856 } },
 				},
 				NomaliseGrain = Custom {
 					CtrlWShown = false,
@@ -520,7 +523,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 							Source = "Output",
 						}
 					},
-					ViewInfo = OperatorInfo { Pos = { -894.674, 483.482 } },
+					ViewInfo = OperatorInfo { Pos = { -727.898, 798.187 } },
 				},
 				NomaliseGrainLUTIn1 = LUTBezier {
 					KeyColorSplines = {
@@ -567,7 +570,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 					NameSet = true,
 					Inputs = {
 						SourceTime = Input {
-							Value = 18,
+							Value = 1,
 							Expression = "Controls.ReferenceFrame",
 						},
 						InterpolateBetweenFrames = Input { Value = 0, },
@@ -577,7 +580,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 							Source = "Output",
 						}
 					},
-					ViewInfo = OperatorInfo { Pos = { -37.2218, 706.793 } },
+					ViewInfo = OperatorInfo { Pos = { 129.554, 1021.5 } },
 				},
 				subtract = ChannelBoolean {
 					CtrlWShown = false,
@@ -585,22 +588,21 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 					Inputs = {
 						Operation = Input { Value = 2, },
 						Background = Input {
-							SourceOp = "PipeRouter5",
+							SourceOp = "dg_dot11",
 							Source = "Output",
 						},
 						Foreground = Input {
-							SourceOp = "Dot5",
+							SourceOp = "dg_dot5",
 							Source = "Output",
 						}
 					},
-					ViewInfo = OperatorInfo { Pos = { -935.02, 1308.75 } },
+					ViewInfo = OperatorInfo { Pos = { -768.244, 1623.46 } },
 					Colors = {
 						TileColor = { R = 0.372549019607843, G = 0.6, B = 0.125490196078431 },
 						TextColor = { R = 0.725490196078431, G = 0.690196078431373, B = 0.592156862745098 },
 					}
 				},
 				Instance_ColorSpaceTransform = ColorSpaceTransform {
-					CtrlWShown = false,
 					NameSet = true,
 					SourceOp = "InputColorSpaceTransform",
 					Inputs = {
@@ -627,7 +629,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 						Advanced = Input {
 						},
 						Input = Input {
-							SourceOp = "Instance_depth",
+							SourceOp = "Instance_depth_raw",
 							Source = "Output",
 						},
 						CommentsNest = Input {
@@ -639,7 +641,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 						EndRenderScripts = Input {
 						}
 					},
-					ViewInfo = OperatorInfo { Pos = { -2709.7, 1308.75 } },
+					ViewInfo = OperatorInfo { Pos = { -2542.92, 1623.46 } },
 					Version = 1
 				},
 				MinMaxSample = Custom {
@@ -692,7 +694,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 							Source = "Output",
 						}
 					},
-					ViewInfo = OperatorInfo { Pos = { -203.93, 1955.26 } },
+					ViewInfo = OperatorInfo { Pos = { -37.1528, 2269.97 } },
 				},
 				ProbeMin = Probe {
 					CtrlWZoom = false,
@@ -763,7 +765,6 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 					CtrlWZoom = false,
 				},
 				Sample_square = RectangleMask {
-					CtrlWShown = false,
 					NameSet = true,
 					Inputs = {
 						Filter = Input { Value = FuID { "Fast Gaussian" }, },
@@ -783,7 +784,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 						CornerRadius = Input { Expression = "0.0", },
 						Angle = Input { Expression = "0.0", }
 					},
-					ViewInfo = OperatorInfo { Pos = { -109.885, 883.476 } },
+					ViewInfo = OperatorInfo { Pos = { 56.8922, 1198.18 } },
 				},
 				MultiFrameRetime = TimeStretcher {
 					CtrlWShown = false,
@@ -800,43 +801,24 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 							Source = "Output",
 						}
 					},
-					ViewInfo = OperatorInfo { Pos = { -331.378, 1991.26 } },
+					ViewInfo = OperatorInfo { Pos = { -164.602, 2305.97 } },
 					Colors = {
 						TileColor = { R = 0.372549019607843, G = 0.6, B = 0.125490196078431 },
 						TextColor = { R = 0.584313725490196, G = 0.294117647058824, B = 0.803921568627451 },
 					}
 				},
-				Instance_depth = ChangeDepth {
-					CtrlWShown = false,
+				Instance_depth_raw = ChangeDepth {
 					NameSet = true,
-					SourceOp = "depth",
+					SourceOp = "depth_comp",
 					Inputs = {
-						SettingsNest = Input {
-						},
-						LayersNest = Input {
-						},
 						Input = Input {
-							SourceOp = "Plate_Input",
+							SourceOp = "null_raw_input",
 							Source = "Output",
-						},
-						CommentsNest = Input {
-						},
-						FrameRenderScriptNest = Input {
-						},
-						StartRenderScripts = Input {
-						},
-						EndRenderScripts = Input {
 						}
 					},
-					ViewInfo = OperatorInfo { Pos = { -2874.92, 1308.75 } },
+					ViewInfo = OperatorInfo { Pos = { -2709.07, 1623.46 } },
 				},
-				Plate_Input = PipeRouter {
-					NameSet = true,
-					ViewInfo = PipeRouterInfo { Pos = { -3043.04, 1308.75 } },
-					Colors = { TileColor = { R = 0.572549019607843, G = 0.572549019607843, B = 0.572549019607843 }, }
-				},
-				Dot9 = PipeRouter {
-					CtrlWShown = false,
+				dg_dot16 = PipeRouter {
 					NameSet = true,
 					Inputs = {
 						Input = Input {
@@ -844,7 +826,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 							Source = "Output",
 						}
 					},
-					ViewInfo = PipeRouterInfo { Pos = { -47.8498, 477.735 } },
+					ViewInfo = PipeRouterInfo { Pos = { 118.926, 792.44 } },
 					Colors = { TileColor = { R = 0.572549019607843, G = 0.572549019607843, B = 0.572549019607843 }, }
 				},
 				SCLuma = ChannelBoolean {
@@ -859,24 +841,34 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 						ToBlue = Input { Value = 15, },
 						ToAlpha = Input { Value = 15, },
 						Background = Input {
-							SourceOp = "CineonLog",
+							SourceOp = "clamp_black",
 							Source = "Output",
 						}
 					},
-					ViewInfo = OperatorInfo { Pos = { -458.597, 1955.26 } },
+					ViewInfo = OperatorInfo { Pos = { -291.821, 2269.97 } },
 				},
 				CineonLog = CineonLog {
-					CtrlWShown = false,
 					NameSet = true,
 					Inputs = {
 						Mode = Input { Value = 1, },
 						SLogVersion = Input { Value = FuID { "SLog2" }, },
 						Input = Input {
-							SourceOp = "Dot5",
+							SourceOp = "dg_dot5",
 							Source = "Output",
 						}
 					},
-					ViewInfo = OperatorInfo { Pos = { -512.567, 2187.45 } },
+					ViewInfo = OperatorInfo { Pos = { -466.035, 2504.29 } },
+				},
+				clamp_black = BrightnessContrast {
+					NameSet = true,
+					Inputs = {
+						ClipBlack = Input { Value = 1, },
+						Input = Input {
+							SourceOp = "CineonLog",
+							Source = "Output",
+						}
+					},
+					ViewInfo = OperatorInfo { Pos = { -353.449, 2504.29 } },
 				},
 				Instance_ColorSpaceTransform2 = ColorSpaceTransform {
 					CtrlWShown = false,
@@ -906,7 +898,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 						Advanced = Input {
 						},
 						Input = Input {
-							SourceOp = "Instance_depth_1",
+							SourceOp = "Instance_depth_degrained",
 							Source = "Output",
 						},
 						CommentsNest = Input {
@@ -918,51 +910,31 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 						EndRenderScripts = Input {
 						}
 					},
-					ViewInfo = OperatorInfo { Pos = { -2715.33, 2190.25 } },
+					ViewInfo = OperatorInfo { Pos = { -2548.55, 2504.96 } },
 					Version = 1
 				},
-				Instance_depth_1 = ChangeDepth {
-					CtrlWShown = false,
+				Instance_depth_degrained = ChangeDepth {
 					NameSet = true,
-					SourceOp = "depth",
-					Inputs = {
-						SettingsNest = Input {
-						},
-						LayersNest = Input {
-						},
-						Input = Input {
-							SourceOp = "Denoised_Input",
-							Source = "Output",
-						},
-						CommentsNest = Input {
-						},
-						FrameRenderScriptNest = Input {
-						},
-						StartRenderScripts = Input {
-						},
-						EndRenderScripts = Input {
-						}
-					},
-					ViewInfo = OperatorInfo { Pos = { -2879.98, 2191.72 } },
-				},
-				Denoised_Input = PipeRouter {
-					CtrlWShown = false,
-					NameSet = true,
-					ViewInfo = PipeRouterInfo { Pos = { -3046.48, 2191.72 } },
-				},
-				Dot5 = PipeRouter {
-					CtrlWShown = false,
-					NameSet = true,
+					SourceOp = "depth_comp",
 					Inputs = {
 						Input = Input {
-							SourceOp = "Dot",
+							SourceOp = "null_degrained_input",
 							Source = "Output",
 						}
 					},
-					ViewInfo = PipeRouterInfo { Pos = { -957.88, 2189.58 } },
+					ViewInfo = OperatorInfo { Pos = { -2733.81, 2504.96 } },
 				},
-				Dot = PipeRouter {
-					CtrlWShown = false,
+				dg_dot5 = PipeRouter {
+					NameSet = true,
+					Inputs = {
+						Input = Input {
+							SourceOp = "dg_dot4",
+							Source = "Output",
+						}
+					},
+					ViewInfo = PipeRouterInfo { Pos = { -791.104, 2504.29 } },
+				},
+				dg_dot4 = PipeRouter {
 					NameSet = true,
 					Inputs = {
 						Input = Input {
@@ -970,44 +942,42 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 							Source = "Output",
 						}
 					},
-					ViewInfo = PipeRouterInfo { Pos = { -1368.07, 2190.25 } },
+					ViewInfo = PipeRouterInfo { Pos = { -1201.29, 2504.96 } },
 				},
-				Dot3 = PipeRouter {
-					CtrlWShown = false,
+				dg_dot6 = PipeRouter {
 					NameSet = true,
 					Inputs = {
 						Input = Input {
-							SourceOp = "Dot5",
+							SourceOp = "dg_dot5",
 							Source = "Output",
 						}
 					},
-					ViewInfo = PipeRouterInfo { Pos = { -940.911, 2290.47 } },
+					ViewInfo = PipeRouterInfo { Pos = { -774.135, 2605.18 } },
 				},
 				KeyMix = Merge {
-					CtrlWShown = false,
 					NameSet = true,
 					Inputs = {
 						EffectMask = Input {
-							SourceOp = "PipeRouter6",
+							SourceOp = "dg_dot18",
 							Source = "Output",
 						},
 						Blend = Input {
 							Value = 0,
 							Expression = "Controls.ReplaceG",
 						},
-						ApplyMaskInverted = Input { Expression = ":if DasGrainFusion_V_0_80.EffectMask then return \"0\" else return \"1\" end", },
+						ApplyMaskInverted = Input { Expression = ":if DasGrainFusion_V_0_81.EffectMask then return \"0\" else return \"1\" end", },
 						Background = Input {
-							SourceOp = "Dot9",
+							SourceOp = "Multiplay_grain_edge",
 							Source = "Output",
 						},
 						Foreground = Input {
-							SourceOp = "STmap",
+							SourceOp = "Multiplay_scgrain_edge",
 							Source = "Output",
 						},
 						Operator = Input { Value = FuID { "Held Out" }, },
 						PerformDepthMerge = Input { Value = 0, }
 					},
-					ViewInfo = OperatorInfo { Pos = { 610.081, 477.735 } },
+					ViewInfo = OperatorInfo { Pos = { 777.524, 792.44 } },
 				},
 				SCPlate = ChannelBoolean {
 					CtrlWShown = false,
@@ -1021,11 +991,11 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 						ToBlue = Input { Value = 15, },
 						ToAlpha = Input { Value = 15, },
 						Background = Input {
-							SourceOp = "Dot3",
+							SourceOp = "dg_dot6",
 							Source = "Output",
 						}
 					},
-					ViewInfo = OperatorInfo { Pos = { 242.96, 2286.89 } },
+					ViewInfo = OperatorInfo { Pos = { 409.736, 2601.6 } },
 				},
 				SetChannel = ChannelBoolean {
 					CtrlWShown = false,
@@ -1040,14 +1010,14 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 							Source = "Output",
 						}
 					},
-					ViewInfo = OperatorInfo { Pos = { 219.927, 1308.08 } },
+					ViewInfo = OperatorInfo { Pos = { 386.703, 1622.79 } },
 				},
 				CustomKeyer = Custom {
 					CtrlWShown = false,
 					NameSet = true,
 					Inputs = {
-						NumberIn1 = Input { Value = 0.391045237518847, },
-						NumberIn2 = Input { Value = 0.0077645530924201, },
+						NumberIn1 = Input { Value = 0.942019653320312, },
+						NumberIn2 = Input { Value = 0.0218475341796875, },
 						LUTIn1 = Input {
 							SourceOp = "CustomKeyerLUTIn1",
 							Source = "Value",
@@ -1065,11 +1035,11 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 							Source = "Value",
 						},
 						Setup1 = Input {
-							Value = "0.38328068442643",
+							Value = "0.92017211914062",
 							Expression = "NumberIn1-NumberIn2",
 						},
 						Setup2 = Input {
-							Value = "0.39880979061127",
+							Value = "0.9638671875",
 							Expression = "NumberIn1+NumberIn2",
 						},
 						AlphaExpression = Input { Value = "r1 >= s1 && r1 <= s2", },
@@ -1089,11 +1059,11 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 						ShowLUT3 = Input { Value = 0, },
 						ShowLUT4 = Input { Value = 0, },
 						Image1 = Input {
-							SourceOp = "CineonLog",
+							SourceOp = "clamp_black",
 							Source = "Output",
 						}
 					},
-					ViewInfo = OperatorInfo { Pos = { 244.989, 2191.05 } },
+					ViewInfo = OperatorInfo { Pos = { 411.765, 2505.76 } },
 				},
 				CustomKeyerLUTIn1 = LUTBezier {
 					KeyColorSplines = {
@@ -1164,7 +1134,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 							Source = "Output",
 						}
 					},
-					ViewInfo = OperatorInfo { Pos = { 390.593, 1308.75 } },
+					ViewInfo = OperatorInfo { Pos = { 557.369, 1623.46 } },
 					Colors = {
 						TileColor = { R = 0.725490196078431, G = 0.690196078431373, B = 0.592156862745098 },
 						TextColor = { R = 0.913725490196078, G = 0.549019607843137, B = 0.709803921568627 },
@@ -1233,7 +1203,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 						Comments = Input { Value = "Re", }
 					},
 					ViewInfo = UnderlayInfo {
-						Pos = { 324.104, 564.731 },
+						Pos = { 490.88, 879.436 },
 						Size = { 1056.68, 373.47 }
 					},
 					Colors = { TileColor = { R = 0.0823529411764706, G = 0.384313725490196, B = 0.517647058823529 }, }
@@ -1284,11 +1254,11 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 							Source = "Output",
 						},
 						Image2 = Input {
-							SourceOp = "Dot7",
+							SourceOp = "dg_dot20",
 							Source = "Output",
 						}
 					},
-					ViewInfo = OperatorInfo { Pos = { 1040.55, 229.155 } },
+					ViewInfo = OperatorInfo { Pos = { 1207.33, 543.86 } },
 				},
 				AdaptGrainLUTIn1 = LUTBezier {
 					KeyColorSplines = {
@@ -1350,7 +1320,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 						}
 					},
 					ViewInfo = GroupInfo {
-						Pos = { 504.193, 1373.76 },
+						Pos = { 670.969, 1688.47 },
 						Flags = {
 							AllowPan = false,
 							ConnectedSnap = true,
@@ -1368,7 +1338,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 							CtrlWShown = false,
 							Inputs = {
 								Input = Input {
-									SourceOp = "Dot6",
+									SourceOp = "dg_dot7",
 									Source = "Output",
 								}
 							},
@@ -1425,7 +1395,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 							Source = "Output",
 						}
 					},
-					ViewInfo = OperatorInfo { Pos = { 504.193, 1308.75 } },
+					ViewInfo = OperatorInfo { Pos = { 670.969, 1623.46 } },
 				},
 				add = ChannelBoolean {
 					CtrlWShown = false,
@@ -1433,7 +1403,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 					Inputs = {
 						Operation = Input { Value = 1, },
 						Background = Input {
-							SourceOp = "Dot8",
+							SourceOp = "dg_dot13",
 							Source = "Output",
 						},
 						Foreground = Input {
@@ -1441,10 +1411,9 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 							Source = "Output",
 						}
 					},
-					ViewInfo = OperatorInfo { Pos = { 1095.88, -0.766968 } },
+					ViewInfo = OperatorInfo { Pos = { 1262.66, 313.938 } },
 				},
-				Dot7 = PipeRouter {
-					CtrlWShown = false,
+				dg_dot20 = PipeRouter {
 					NameSet = true,
 					Inputs = {
 						Input = Input {
@@ -1452,10 +1421,9 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 							Source = "Output",
 						}
 					},
-					ViewInfo = PipeRouterInfo { Pos = { 1066.78, 477.735 } },
+					ViewInfo = PipeRouterInfo { Pos = { 1233.56, 792.44 } },
 				},
-				Dot6 = PipeRouter {
-					CtrlWShown = false,
+				dg_dot7 = PipeRouter {
 					NameSet = true,
 					Inputs = {
 						Input = Input {
@@ -1463,7 +1431,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 							Source = "Output",
 						}
 					},
-					ViewInfo = PipeRouterInfo { Pos = { 504.193, 2191.05 } },
+					ViewInfo = PipeRouterInfo { Pos = { 670.969, 2505.76 } },
 				},
 				ChannelBooleans2 = ChannelBoolean {
 					CtrlWShown = false,
@@ -1478,14 +1446,35 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 							Source = "Output",
 						},
 						Foreground = Input {
-							SourceOp = "Dot4",
+							SourceOp = "dg_dot8",
 							Source = "Output",
 						}
 					},
-					ViewInfo = OperatorInfo { Pos = { 615.793, 1308.75 } },
+					ViewInfo = OperatorInfo { Pos = { 782.569, 1623.46 } },
 				},
-				Dot4 = PipeRouter {
-					CtrlWShown = false,
+				green_analyse_mask = ChannelBoolean {
+					NameSet = true,
+					Inputs = {
+						EffectMask = Input {
+							SourceOp = "dg_dot19",
+							Source = "Output",
+						},
+						Blend = Input { Value = 0, },
+						ApplyMaskInverted = Input { Value = 1, },
+						MaskChannel = Input { Value = 1, },
+						Operation = Input { Value = 6, },
+						ToRed = Input { Value = 4, },
+						ToGreen = Input { Value = 4, },
+						ToBlue = Input { Value = 4, },
+						ToAlpha = Input { Value = 15, },
+						Background = Input {
+							SourceOp = "ChannelBooleans2",
+							Source = "Output",
+						}
+					},
+					ViewInfo = OperatorInfo { Pos = { 996.706, 1623.46 } },
+				},
+				dg_dot8 = PipeRouter {
 					NameSet = true,
 					Inputs = {
 						Input = Input {
@@ -1493,15 +1482,21 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 							Source = "Output",
 						}
 					},
-					ViewInfo = PipeRouterInfo { Pos = { 615.793, 2286.89 } },
+					ViewInfo = PipeRouterInfo { Pos = { 782.569, 2601.6 } },
 				},
 				OutputColorSpaceTransform = ColorSpaceTransform {
 					CtrlWShown = false,
 					NameSet = true,
 					Inputs = {
-						InputColorSpace = Input { Expression = "InputColorSpaceTransform.OutputColorSpace", },
+						InputColorSpace = Input {
+							Value = FuID { "ACES_AP1_COLORSPACE" },
+							Expression = "InputColorSpaceTransform.OutputColorSpace",
+						},
 						InputGamma = Input { Expression = "InputColorSpaceTransform.OutputGamma", },
-						OutputColorSpace = Input { Expression = "InputColorSpaceTransform.InputColorSpace", },
+						OutputColorSpace = Input {
+							Value = FuID { "ACES_AP1_COLORSPACE" },
+							Expression = "InputColorSpaceTransform.InputColorSpace",
+						},
 						OutputGamma = Input { Expression = "InputColorSpaceTransform.InputGamma", },
 						ToneMappingMethod = Input { Value = FuID { "TM_NONE" }, },
 						SrcLumMax = Input { Disabled = true, },
@@ -1514,7 +1509,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 							Source = "Output",
 						}
 					},
-					ViewInfo = OperatorInfo { Pos = { 1463.9, -0.766968 } },
+					ViewInfo = OperatorInfo { Pos = { 1630.68, 313.938 } },
 					Version = 1
 				},
 				AlphaMultiply = AlphaMultiply {
@@ -1522,11 +1517,11 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 					NameSet = true,
 					Inputs = {
 						Input = Input {
-							SourceOp = "ChannelBooleans2",
+							SourceOp = "green_analyse_mask",
 							Source = "Output",
 						}
 					},
-					ViewInfo = OperatorInfo { Pos = { 1062.53, 1308.75 } },
+					ViewInfo = OperatorInfo { Pos = { 1229.31, 1623.46 } },
 					Colors = {
 						TileColor = { R = 0.584313725490196, G = 0.294117647058824, B = 0.803921568627451 },
 						TextColor = { R = 0.372549019607843, G = 0.6, B = 0.125490196078431 },
@@ -1559,7 +1554,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 						EndRenderScripts = Input {
 						}
 					},
-					ViewInfo = OperatorInfo { Pos = { 1054.99, 1991 } },
+					ViewInfo = OperatorInfo { Pos = { 1221.77, 2305.71 } },
 					Colors = {
 						TileColor = { R = 0.372549019607843, G = 0.6, B = 0.125490196078431 },
 						TextColor = { R = 0.584313725490196, G = 0.294117647058824, B = 0.803921568627451 },
@@ -1570,13 +1565,13 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 					NameSet = true,
 					Inputs = {
 						SampleDirection = Input { Value = 2, },
-						Frames = Input { Value = 4, },
+						Frames = Input { Value = 9, },
 						Input = Input {
 							SourceOp = "Instance_MinMaxRetime",
 							Source = "Output",
 						}
 					},
-					ViewInfo = OperatorInfo { Pos = { 1054.99, 2043.28 } },
+					ViewInfo = OperatorInfo { Pos = { 1221.77, 2357.99 } },
 				},
 				FirstFrame = TimeStretcher {
 					CtrlWShown = false,
@@ -1590,14 +1585,16 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 							Source = "Output",
 						}
 					},
-					ViewInfo = OperatorInfo { Pos = { 1054.99, 2095.57 } },
+					ViewInfo = OperatorInfo { Pos = { 1221.77, 2410.28 } },
 				},
 				Controls = GroupOperator {
-					CtrlWShown = false,
 					NameSet = true,
 					Inputs = ordered() {
 						NumberOfSamples = Input { Value = 20, },
 						NumberOfFrames = Input { Value = 10, },
+						ReplaceG = Input { Value = 0, },
+						Diagnostic = Input { Value = 0, },
+						TabReplace = Input { Value = 0, },
 						Input1 = InstanceInput {
 							SourceOp = "AlphaDivide1",
 							Source = "Input",
@@ -1610,7 +1607,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 						}
 					},
 					ViewInfo = GroupInfo {
-						Pos = { 2301.02, -305.999 },
+						Pos = { 2467.8, 8.70544 },
 						Flags = {
 							AllowPan = false,
 							ConnectedSnap = true,
@@ -1625,7 +1622,6 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 					},
 					Tools = ordered() {
 						AlphaDivide1 = AlphaDivide {
-							CtrlWShown = false,
 							ViewInfo = OperatorInfo { Pos = { 0, 8.75757 } },
 						}
 					},
@@ -1650,15 +1646,6 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 							INP_SplineType = "Default",
 							LINKS_Name = "Luminance",
 						},
-						-- PixelAspectctrl = {
-						-- 	LINKS_Name = "Pixel Aspect Ratio",
-						-- 	LINKID_DataType = "Point",
-						-- 	INPID_InputControl = "OffsetControl",
-						-- 	INP_External = false,
-						-- 	INP_Passive = true,
-						-- 	INP_DefaultX = 1,
-						-- 	INP_DefaultY = 1,
-						-- },
 						NumberOfSamples = {
 							INP_MaxAllowed = 1000000,
 							INP_Integer = true,
@@ -1712,7 +1699,6 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 							CBC_TriState = false,
 							INP_Integer = false,
 							INP_External = false,
-							-- ICD_Width = 0.5,
 							LINKID_DataType = "Number",
 							INPID_InputControl = "CheckboxControl",
 							INP_SplineType = "Default",
@@ -1810,7 +1796,6 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 							INP_External = false,
 							INP_SplineType = "Default",
 							LINKS_Name = "Diagnostic",
-							-- ICD_Width = 0.4,
 						},
 						Metadata = {
 							{ CCS_AddString = "Comp" },
@@ -1826,79 +1811,78 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 							INP_External = false,
 							INP_SplineType = "Default",
 							LINKS_Name = "Copy Metadata From",
-							-- ICD_Width = 0.4,
 						},
 						LabelColourSpace = {
 							LINKID_DataType = "Number",
+							LBLC_DropDownButton = false,
 							INPID_InputControl = "NestControl",
 							LBLC_NumInputs = 4,
-							LBLC_DropDownButton = false,
-							INP_External = false,
 							INP_Passive = true,
+							INP_External = false,
 							LINKS_Name = "<p style='color:#ffffff; text-align: left;'>Colour Space :</p>",
 						},
 						LabelDegrainAmount = {
 							LINKID_DataType = "Number",
-							INPID_InputControl = "NestControl",
-							LBLC_NumInputs = 1,
 							LBLC_DropDownButton = false,
-							INP_External = false,
+							INPID_InputControl = "NestControl",
+							LBLC_NumInputs = 2,
 							INP_Passive = true,
+							INP_External = false,
 							LINKS_Name = "<p style='color:#ffffff; text-align: left;'>Degrain Amount :</p>",
 						},
 						LabelAnalyse = {
 							LINKID_DataType = "Number",
-							INPID_InputControl = "NestControl",
-							LBLC_NumInputs = 7,
 							LBLC_DropDownButton = false,
-							INP_External = false,
+							INPID_InputControl = "NestControl",
+							LBLC_NumInputs = 8,
 							INP_Passive = true,
+							INP_External = false,
 							LINKS_Name = "<p style='color:#ffffff; text-align: left;'>Analyse :</p>",
 						},
 						LabelScatter = {
 							LINKID_DataType = "Number",
+							LBLC_DropDownButton = false,
 							INPID_InputControl = "NestControl",
 							LBLC_NumInputs = 12,
-							LBLC_DropDownButton = false,
-							INP_External = false,
 							INP_Passive = true,
+							INP_External = false,
 							LINKS_Name = "<p style='color:#ffffff; text-align: left;'>Scatter :</p>",
 						},
 						AdditionalFrames = {
+							TEC_ReadOnly = false,
 							LINKS_Name = "Additional Frames",
-							LINKID_DataType = "Text",
+							INP_External = false,
 							INPID_InputControl = "TextEditControl",
+							LINKID_DataType = "Text",
+							INP_Passive = true,
 							TEC_Lines = 1,
 							TEC_Wrap = true,
-							TEC_ReadOnly = false,
-							INP_External = false,
-							INP_Passive = true,
 						},
 						TabAnalyse = {
 							LINKID_DataType = "Number",
-							INPID_InputControl = "NestControl",
-							LBLC_NumInputs = 15,
 							LBLC_DropDownButton = true,
-							INP_External = false,
+							INPID_InputControl = "NestControl",
+							LBLC_NumInputs = 17,
 							INP_Passive = true,
+							INP_External = false,
 							LINKS_Name = "<p style='color:#ffffff; text-align: left; font-weight: bold;'>ANALYSE</p>",
 						},
 						TabReplace = {
 							LINKID_DataType = "Number",
+							LBLC_DropDownButton = true,
 							INPID_InputControl = "NestControl",
 							LBLC_NumInputs = 14,
-							LBLC_DropDownButton = true,
-							INP_External = false,
 							INP_Passive = true,
+							INP_External = false,
 							LINKS_Name = "<p style='color:#ffffff; text-align: left; font-weight: bold;'>REPLACE</p>",
 						},
 						TabAdjust = {
 							LINKID_DataType = "Number",
+							LBLC_DropDownButton = true,
 							INPID_InputControl = "NestControl",
 							LBLC_NumInputs = 1,
-							LBLC_DropDownButton = true,
-							INP_External = false,
 							INP_Passive = true,
+							INP_External = false,
 							LINKS_Name = "<p style='color:#ffffff; text-align: left; font-weight: bold;'>ADJUST</p>",
 						}
 					}
@@ -1956,7 +1940,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 							Source = "Output",
 						}
 					},
-					ViewInfo = OperatorInfo { Pos = { 1054.99, 2152.13 } },
+					ViewInfo = OperatorInfo { Pos = { 1221.77, 2466.84 } },
 					Colors = {
 						TileColor = { R = 0.6, G = 0.4, B = 0 },
 						TextColor = { R = 0, G = 0.596078431372549, B = 0.6 },
@@ -2036,21 +2020,24 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 					NameSet = true,
 					Inputs = {
 						NumberOfInputs = Input { Value = 5, },
-						Source = Input { Expression = "Controls.Diagnostic", },
+						Source = Input {
+							Value = 4,
+							Expression = "Controls.Diagnostic",
+						},
 						Input0 = Input {
 							SourceOp = "OutputColorSpaceTransform",
 							Source = "Output",
 						},
 						Input1 = Input {
-							SourceOp = "dot18",
+							SourceOp = "dg_dot22",
 							Source = "Output",
 						},
 						Input2 = Input {
-							SourceOp = "dot25",
+							SourceOp = "dg_dot23",
 							Source = "Output",
 						},
 						Input3 = Input {
-							SourceOp = "dot24",
+							SourceOp = "dg_dot21",
 							Source = "Output",
 						},
 						Input4 = Input {
@@ -2058,7 +2045,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 							Source = "Output",
 						}
 					},
-					ViewInfo = OperatorInfo { Pos = { 1667.63, -0.766968 } },
+					ViewInfo = OperatorInfo { Pos = { 1834.41, 313.938 } },
 					Colors = { TileColor = { R = 0.572549019607843, G = 0.572549019607843, B = 0.572549019607843 }, }
 				},
 				add_scatter = ChannelBoolean {
@@ -2075,7 +2062,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 							Source = "Output",
 						}
 					},
-					ViewInfo = OperatorInfo { Pos = { 282.117, 821.226 } },
+					ViewInfo = OperatorInfo { Pos = { 448.893, 1135.93 } },
 				},
 				Vector = Custom {
 					CtrlWShown = false,
@@ -2083,19 +2070,19 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 					Inputs = {
 						PointIn1 = Input { Value = { 0, 0 }, },
 						NumberIn1 = Input {
-							Value = 0.205875920755664,
+							Value = 0.54,
 							Expression = "Sample_square.Center.X+Sample_square.Width/2",
 						},
 						NumberIn2 = Input {
-							Value = 0.0637729827084505,
+							Value = 0.46,
 							Expression = "Sample_square.Center.X-Sample_square.Width/2",
 						},
 						NumberIn3 = Input {
-							Value = 0.164762259998109,
+							Value = 0.54,
 							Expression = "Sample_square.Center.Y+Sample_square.Height/2",
 						},
 						NumberIn4 = Input {
-							Value = 0.0275261800387432,
+							Value = 0.46,
 							Expression = "Sample_square.Center.Y-Sample_square.Height/2",
 						},
 						LUTIn1 = Input {
@@ -2123,7 +2110,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 							Source = "Output",
 						}
 					},
-					ViewInfo = OperatorInfo { Pos = { 161.977, 821.226 } },
+					ViewInfo = OperatorInfo { Pos = { 328.753, 1135.93 } },
 				},
 				WrapEdges = Custom {
 					CtrlWShown = false,
@@ -2146,19 +2133,19 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 							Source = "Value",
 						},
 						Setup1 = Input {
-							Value = "0.20587592075566",
+							Value = "0.54",
 							Expression = "Vector.NumberIn1",
 						},
 						Setup2 = Input {
-							Value = "0.063772982708451",
+							Value = "0.46",
 							Expression = "Vector.NumberIn2",
 						},
 						Setup3 = Input {
-							Value = "0.16476225999811",
+							Value = "0.54",
 							Expression = "Vector.NumberIn3",
 						},
 						Setup4 = Input {
-							Value = "0.027526180038743",
+							Value = "0.46",
 							Expression = "Vector.NumberIn4",
 						},
 						RedExpression = Input { Value = "(r1+1-s2)%(s1-s2)+s2", },
@@ -2170,7 +2157,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 							Source = "Output",
 						}
 					},
-					ViewInfo = OperatorInfo { Pos = { 431.974, 821.226 } },
+					ViewInfo = OperatorInfo { Pos = { 598.75, 1135.93 } },
 				},
 				RandPosition = Custom {
 					CtrlWShown = false,
@@ -2193,19 +2180,19 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 							Source = "Value",
 						},
 						Setup1 = Input {
-							Value = "0.20587592075566",
+							Value = "0.54",
 							Expression = "Vector.NumberIn1",
 						},
 						Setup2 = Input {
-							Value = "0.063772982708451",
+							Value = "0.46",
 							Expression = "Vector.NumberIn2",
 						},
 						Setup3 = Input {
-							Value = "0.16476225999811",
+							Value = "0.54",
 							Expression = "Vector.NumberIn3",
 						},
 						Setup4 = Input {
-							Value = "0.027526180038743",
+							Value = "0.46",
 							Expression = "Vector.NumberIn4",
 						},
 						RedExpression = Input { Value = "rands(0,1,r1*10000)*(s1-s2)+s2\n\n", },
@@ -2216,7 +2203,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 							Source = "Output",
 						}
 					},
-					ViewInfo = OperatorInfo { Pos = { 164.958, 860.459 } },
+					ViewInfo = OperatorInfo { Pos = { 331.734, 1175.17 } },
 				},
 				STmap = Texture {
 					CtrlWShown = false,
@@ -2232,7 +2219,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 							Source = "Output",
 						}
 					},
-					ViewInfo = OperatorInfo { Pos = { 610.081, 706.793 } },
+					ViewInfo = OperatorInfo { Pos = { 776.857, 1021.5 } },
 				},
 				nearestPixel = Custom {
 					CtrlWShown = false,
@@ -2261,7 +2248,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 							Source = "Output",
 						}
 					},
-					ViewInfo = OperatorInfo { Pos = { 592.472, 821.226 } },
+					ViewInfo = OperatorInfo { Pos = { 759.248, 1135.93 } },
 				},
 				BlurQC = Blur {
 					CtrlWShown = false,
@@ -2273,7 +2260,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 							Source = "Output",
 						}
 					},
-					ViewInfo = OperatorInfo { Pos = { 1673.77, -169.778 } },
+					ViewInfo = OperatorInfo { Pos = { 1840.55, 144.927 } },
 				},
 				BrightnessContrastQC = BrightnessContrast {
 					CtrlWShown = false,
@@ -2285,7 +2272,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 							Source = "Output",
 						}
 					},
-					ViewInfo = OperatorInfo { Pos = { 1673.77, -97.7226 } },
+					ViewInfo = OperatorInfo { Pos = { 1840.55, 216.982 } },
 				},
 				ChannelBooleansQC = ChannelBoolean {
 					CtrlWShown = false,
@@ -2301,26 +2288,23 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 							Source = "Output",
 						}
 					},
-					ViewInfo = OperatorInfo { Pos = { 1673.77, -130.82 } },
+					ViewInfo = OperatorInfo { Pos = { 1840.55, 183.885 } },
 				},
 				DG_Voronoi = Fuse.Voronoi {
 					CtrlWZoom = false,
 					CtrlWShown = false,
 					NameSet = true,
 					Inputs = {
-						GlobalOut = Input { Value = 245, },
+						GlobalOut = Input { Value = 35, },
 						Width = Input {
-							Value = 3840,
+							Value = 1920,
 							Expression = "SampleFrame.Output.Width",
 						},
 						Height = Input {
-							Value = 2160,
+							Value = 1080,
 							Expression = "SampleFrame.Output.Height",
 						},
-						PixelAspect = Input {
-							Value = { 1, 1 },
-							Expression = "Point(SampleFrame.Output.OriginalXScale, SampleFrame.Output.OriginalYScale)",
-						},
+						PixelAspect = Input { Expression = "Point(SampleFrame.Output.OriginalXScale, SampleFrame.Output.OriginalYScale)", },
 						Depth = Input { Value = 4, },
 						["Gamut.ColorSpaceNest"] = Input { Value = 1, },
 						["Gamut.ColorType"] = Input { Value = FuID { "Space" }, },
@@ -2329,14 +2313,14 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 						["Gamut.SLogVersion"] = Input { Value = FuID { "SLog2" }, },
 						Frequency = Input { Value = 100, },
 						EdgeFrequency = Input { Value = 500, },
-						AspectRatio = Input { Expression = "SampleFrame.Output.OriginalXScale/SampleFrame.Output.OriginalYScale" },
 						Edge = Input { Value = 0.15, },
+						AspectRatio = Input { Expression = "SampleFrame.Output.OriginalXScale/SampleFrame.Output.OriginalYScale", },
 						Seed = Input {
 							Value = 18,
 							Expression = "time",
 						}
 					},
-					ViewInfo = OperatorInfo { Pos = { -53.1406, 821.226 } },
+					ViewInfo = OperatorInfo { Pos = { 113.636, 1135.93 } },
 					Version = 10
 				},
 				Blur1_1 = Blur {
@@ -2349,7 +2333,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 							Source = "Output",
 						}
 					},
-					ViewInfo = OperatorInfo { Pos = { -7.42892, 994.674 } },
+					ViewInfo = OperatorInfo { Pos = { 159.347, 1309.38 } },
 				},
 				ChannelBooleans1_1 = ChannelBoolean {
 					CtrlWShown = false,
@@ -2364,7 +2348,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 							Source = "Output",
 						}
 					},
-					ViewInfo = OperatorInfo { Pos = { 106.349, 994.674 } },
+					ViewInfo = OperatorInfo { Pos = { 273.125, 1309.38 } },
 				},
 				CustomTool1 = Custom {
 					CtrlWShown = false,
@@ -2394,7 +2378,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 							Source = "Output",
 						}
 					},
-					ViewInfo = OperatorInfo { Pos = { 224.349, 994.674 } },
+					ViewInfo = OperatorInfo { Pos = { 391.125, 1309.38 } },
 				},
 				Merge_diagnostic = Merge {
 					CtrlWShown = false,
@@ -2409,41 +2393,38 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 							Source = "Output",
 						},
 						Foreground = Input {
-							SourceOp = "dot17",
+							SourceOp = "dg_dot24",
 							Source = "Output",
 						},
 						SubtractiveAdditive = Input { Value = 0.25, },
 						BurnIn = Input { Value = 1, },
 						PerformDepthMerge = Input { Value = 0, }
 					},
-					ViewInfo = OperatorInfo { Pos = { 1871.44, -0.766968 } },
+					ViewInfo = OperatorInfo { Pos = { 2038.22, 313.938 } },
 				},
-				dot16 = PipeRouter {
-					CtrlWShown = false,
+				dg_dot17 = PipeRouter {
 					NameSet = true,
 					Inputs = {
 						Input = Input {
-							SourceOp = "Dot9",
+							SourceOp = "dg_dot16",
 							Source = "Output",
 						}
 					},
-					ViewInfo = PipeRouterInfo { Pos = { -37.8885, 387.827 } },
+					ViewInfo = PipeRouterInfo { Pos = { 128.888, 702.532 } },
 					Colors = { TileColor = { R = 0.572549019607843, G = 0.572549019607843, B = 0.572549019607843 }, }
 				},
-				dot18 = PipeRouter {
-					CtrlWShown = false,
+				dg_dot22 = PipeRouter {
 					NameSet = true,
 					Inputs = {
 						Input = Input {
-							SourceOp = "dot19",
+							SourceOp = "dg_dot15",
 							Source = "Output",
 						}
 					},
-					ViewInfo = PipeRouterInfo { Pos = { 1667.63, 303.112 } },
+					ViewInfo = PipeRouterInfo { Pos = { 1834.41, 617.817 } },
 					Colors = { TileColor = { R = 0.572549019607843, G = 0.572549019607843, B = 0.572549019607843 }, }
 				},
-				dot19 = PipeRouter {
-					CtrlWShown = false,
+				dg_dot15 = PipeRouter {
 					NameSet = true,
 					Inputs = {
 						Input = Input {
@@ -2451,11 +2432,10 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 							Source = "Output",
 						}
 					},
-					ViewInfo = PipeRouterInfo { Pos = { -694.842, 303.112 } },
+					ViewInfo = PipeRouterInfo { Pos = { -528.066, 617.817 } },
 					Colors = { TileColor = { R = 0.372549019607843, G = 0.6, B = 0.125490196078431 }, }
 				},
-				dot17 = PipeRouter {
-					CtrlWShown = false,
+				dg_dot24 = PipeRouter {
 					NameSet = true,
 					Inputs = {
 						Input = Input {
@@ -2463,13 +2443,13 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 							Source = "Output",
 						}
 					},
-					ViewInfo = PipeRouterInfo { Pos = { 1856.35, 994.674 } },
+					ViewInfo = PipeRouterInfo { Pos = { 2023.13, 1309.38 } },
 				},
 				PLATE_RAW_INPUT = Underlay {
 					CtrlWShown = false,
 					NameSet = true,
 					ViewInfo = UnderlayInfo {
-						Pos = { -2821.13, 1263.32 },
+						Pos = { -2654.35, 1578.03 },
 						Size = { 517.423, 145.692 }
 					},
 					Colors = { TileColor = { R = 0.474509803921569, G = 0.658823529411765, B = 0.815686274509804 }, }
@@ -2478,16 +2458,15 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 					CtrlWShown = false,
 					NameSet = true,
 					ViewInfo = UnderlayInfo {
-						Pos = { -2818.97, 2119.93 },
+						Pos = { -2652.19, 2434.64 },
 						Size = { 517.423, 145.692 }
 					},
 					Colors = { TileColor = { R = 0.474509803921569, G = 0.658823529411765, B = 0.815686274509804 }, }
 				},
 				COMP_INPUT = Underlay {
-					CtrlWShown = false,
 					NameSet = true,
 					ViewInfo = UnderlayInfo {
-						Pos = { -2855.81, -70.9664 },
+						Pos = { -2689.03, 243.739 },
 						Size = { 517.423, 145.692 }
 					},
 					Colors = { TileColor = { R = 0.474509803921569, G = 0.658823529411765, B = 0.815686274509804 }, }
@@ -2496,29 +2475,28 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 					CtrlWShown = false,
 					NameSet = true,
 					ViewInfo = UnderlayInfo {
-						Pos = { -348.134, 1886.17 },
+						Pos = { -181.358, 2200.88 },
 						Size = { 517.423, 152.965 }
 					},
 					Colors = { TileColor = { R = 0.372549019607843, G = 0.6, B = 0.125490196078431 }, }
 				},
 				external_grain_switch = Switch {
-					CtrlWShown = false,
 					NameSet = true,
-					Source = Input { Expression = "Controls.ExternalG", },
 					Inputs = {
+						Source = Input { Expression = "Controls.ExternalG", },
 						Input0 = Input {
-							SourceOp = "Dot9",
+							SourceOp = "dg_dot16",
 							Source = "Output",
 						}
 					},
-					ViewInfo = OperatorInfo { Pos = { -37.2218, 664.866 } },
+					ViewInfo = OperatorInfo { Pos = { 129.554, 979.571 } },
 					Colors = { TileColor = { R = 0.572549019607843, G = 0.572549019607843, B = 0.572549019607843 }, }
 				},
 				GRAIN_RESPONSE = Underlay {
 					CtrlWShown = false,
 					NameSet = true,
 					ViewInfo = UnderlayInfo {
-						Pos = { -1387.94, 164.943 },
+						Pos = { -1221.16, 479.648 },
 						Size = { 381.658, 413.523 }
 					},
 					Colors = { TileColor = { R = 0.92156862745098, G = 0.431372549019608, B = 0 }, }
@@ -2527,7 +2505,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 					CtrlWShown = false,
 					NameSet = true,
 					ViewInfo = UnderlayInfo {
-						Pos = { -931.414, 1234.29 },
+						Pos = { -764.638, 1549 },
 						Size = { 517.423, 152.965 }
 					},
 					Colors = { TileColor = { R = 0.92156862745098, G = 0.431372549019608, B = 0 }, }
@@ -2536,7 +2514,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 					CtrlWShown = false,
 					NameSet = true,
 					ViewInfo = UnderlayInfo {
-						Pos = { 700.172, 1239.3 },
+						Pos = { 866.948, 1554.01 },
 						Size = { 1152.38, 1136.38 }
 					},
 					Colors = { TileColor = { R = 0.372549019607843, G = 0.6, B = 0.125490196078431 }, }
@@ -2545,13 +2523,12 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 					CtrlWShown = false,
 					NameSet = true,
 					ViewInfo = UnderlayInfo {
-						Pos = { 1667.63, -181.293 },
+						Pos = { 1834.41, 133.412 },
 						Size = { 184.282, 144.488 }
 					},
 					Colors = { TileColor = { R = 0.725490196078431, G = 0.690196078431373, B = 0.592156862745098 }, }
 				},
-				dot24 = PipeRouter {
-					CtrlWShown = false,
+				dg_dot21 = PipeRouter {
 					NameSet = true,
 					Inputs = {
 						Input = Input {
@@ -2559,26 +2536,25 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 							Source = "Output",
 						}
 					},
-					ViewInfo = PipeRouterInfo { Pos = { 1596.42, 229.155 } },
+					ViewInfo = PipeRouterInfo { Pos = { 1763.2, 543.86 } },
 					Colors = { TileColor = { R = 0.572549019607843, G = 0.572549019607843, B = 0.572549019607843 }, }
 				},
-				dot25 = PipeRouter {
-					CtrlWShown = false,
+				dg_dot23 = PipeRouter {
 					NameSet = true,
 					Inputs = {
 						Input = Input {
-							SourceOp = "dot16",
+							SourceOp = "dg_dot17",
 							Source = "Output",
 						}
 					},
-					ViewInfo = PipeRouterInfo { Pos = { 1724.49, 387.827 } },
+					ViewInfo = PipeRouterInfo { Pos = { 1891.27, 702.532 } },
 					Colors = { TileColor = { R = 0.572549019607843, G = 0.572549019607843, B = 0.572549019607843 }, }
 				},
 				ADD_GRAIN = Underlay {
 					CtrlWShown = false,
 					NameSet = true,
 					ViewInfo = UnderlayInfo {
-						Pos = { 1089.53, -69.8757 },
+						Pos = { 1256.31, 244.829 },
 						Size = { 517.423, 151.753 }
 					},
 					Colors = { TileColor = { R = 0.92156862745098, G = 0.431372549019608, B = 0 }, }
@@ -2587,39 +2563,36 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 					CtrlWShown = false,
 					NameSet = true,
 					ViewInfo = UnderlayInfo {
-						Pos = { 1094.86, 134.952 },
+						Pos = { 1261.64, 449.657 },
 						Size = { 517.423, 151.753 }
 					},
 					Colors = { TileColor = { R = 0.92156862745098, G = 0.431372549019608, B = 0 }, }
 				},
 				toYUV = ColorSpace {
-					CtrlWShown = false,
 					NameSet = true,
 					Inputs = {
 						ColorSpaceConversion = Input { Value = 1, },
 						ColorType = Input { Value = 1, },
 						Input = Input {
-							SourceOp = "PipeRouter5",
+							SourceOp = "dg_dot11",
 							Source = "Output",
 						}
 					},
-					ViewInfo = OperatorInfo { Pos = { -2417.92, 1877.22 } },
+					ViewInfo = OperatorInfo { Pos = { -2251.14, 2191.93 } },
 				},
 				toYUV1 = ColorSpace {
-					CtrlWShown = false,
 					NameSet = true,
 					Inputs = {
 						ColorSpaceConversion = Input { Value = 1, },
 						ColorType = Input { Value = 1, },
 						Input = Input {
-							SourceOp = "PipeRouter4",
+							SourceOp = "dg_dot2",
 							Source = "Output",
 						}
 					},
-					ViewInfo = OperatorInfo { Pos = { -2416.58, 1929.84 } },
+					ViewInfo = OperatorInfo { Pos = { -2249.8, 2244.55 } },
 				},
 				subtract_1 = ChannelBoolean {
-					CtrlWShown = false,
 					NameSet = true,
 					Inputs = {
 						Operation = Input { Value = 2, },
@@ -2632,16 +2605,16 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 							Source = "Output",
 						}
 					},
-					ViewInfo = OperatorInfo { Pos = { -2300.58, 1877.22 } },
+					ViewInfo = OperatorInfo { Pos = { -2133.8, 2191.93 } },
 					Colors = {
 						TileColor = { R = 0.372549019607843, G = 0.6, B = 0.125490196078431 },
 						TextColor = { R = 0.725490196078431, G = 0.690196078431373, B = 0.592156862745098 },
 					}
 				},
 				multiply = Custom {
-					CtrlWShown = false,
 					NameSet = true,
 					Inputs = {
+						NumberIn1 = Input { Expression = "1 / Controls.Luminancectrl - 1", },
 						LUTIn1 = Input {
 							SourceOp = "multiplyLUTIn1",
 							Source = "Value",
@@ -2657,10 +2630,6 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 						LUTIn4 = Input {
 							SourceOp = "multiplyLUTIn4",
 							Source = "Value",
-						},
-						NumberIn1 = Input {
-							Value = 1,
-							Expression = "1 / Controls.Luminancectrl - 1",
 						},
 						RedExpression = Input { Value = "r1*n1", },
 						GreenExpression = Input { Value = "0", },
@@ -2682,10 +2651,9 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 							Source = "Output",
 						}
 					},
-					ViewInfo = OperatorInfo { Pos = { -2172.82, 1877.22 } },
+					ViewInfo = OperatorInfo { Pos = { -2006.04, 2191.93 } },
 				},
 				add_luma_grain = ChannelBoolean {
-					CtrlWShown = false,
 					NameSet = true,
 					Inputs = {
 						Operation = Input { Value = 1, },
@@ -2698,10 +2666,9 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 							Source = "Output",
 						}
 					},
-					ViewInfo = OperatorInfo { Pos = { -2172.82, 1929.84 } },
+					ViewInfo = OperatorInfo { Pos = { -2006.04, 2244.55 } },
 				},
 				toRGB = ColorSpace {
-					CtrlWShown = false,
 					NameSet = true,
 					Inputs = {
 						ColorSpaceConversion = Input { Value = 2, },
@@ -2711,18 +2678,17 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 							Source = "Output",
 						}
 					},
-					ViewInfo = OperatorInfo { Pos = { -2023.18, 1929.84 } },
+					ViewInfo = OperatorInfo { Pos = { -1856.4, 2244.55 } },
 				},
 				LUMINANCE_LEVEL = Underlay {
 					CtrlWShown = false,
 					NameSet = true,
 					ViewInfo = UnderlayInfo {
-						Pos = { -2139.79, 1823.62 },
+						Pos = { -1973.01, 2138.33 },
 						Size = { 791.662, 440.733 }
 					},
 				},
 				subtract_luma_grain = ChannelBoolean {
-					CtrlWShown = false,
 					NameSet = true,
 					Inputs = {
 						Operation = Input { Value = 2, },
@@ -2731,38 +2697,36 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 							Source = "Output",
 						},
 						Foreground = Input {
-							SourceOp = "PipeRouter4",
+							SourceOp = "dg_dot2",
 							Source = "Output",
 						}
 					},
-					ViewInfo = OperatorInfo { Pos = { -2040.13, 2067.79 } },
+					ViewInfo = OperatorInfo { Pos = { -1873.35, 2382.5 } },
 					Colors = {
 						TileColor = { R = 0.372549019607843, G = 0.6, B = 0.125490196078431 },
 						TextColor = { R = 0.725490196078431, G = 0.690196078431373, B = 0.592156862745098 },
 					}
 				},
 				subtract_luma_grain2 = ChannelBoolean {
-					CtrlWShown = false,
 					NameSet = true,
 					Inputs = {
 						Operation = Input { Value = 2, },
 						Background = Input {
-							SourceOp = "PipeRouter3",
+							SourceOp = "dg_dot1",
 							Source = "Output",
 						},
 						Foreground = Input {
-							SourceOp = "PipeRouter2",
+							SourceOp = "dg_dot3",
 							Source = "Output",
 						}
 					},
-					ViewInfo = OperatorInfo { Pos = { -1888.21, 2190.25 } },
+					ViewInfo = OperatorInfo { Pos = { -1721.43, 2504.96 } },
 					Colors = {
 						TileColor = { R = 0.372549019607843, G = 0.6, B = 0.125490196078431 },
 						TextColor = { R = 0.725490196078431, G = 0.690196078431373, B = 0.592156862745098 },
 					}
 				},
 				subtract_comp_luma_grain = ChannelBoolean {
-					CtrlWShown = false,
 					NameSet = true,
 					Inputs = {
 						Operation = Input { Value = 2, },
@@ -2771,115 +2735,91 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 							Source = "Output",
 						},
 						Foreground = Input {
-							SourceOp = "multiply_luma_grain",
+							SourceOp = "red_luma_mask",
 							Source = "Output",
 						}
 					},
-					ViewInfo = OperatorInfo { Pos = { -1943.16, -0.766968 } },
+					ViewInfo = OperatorInfo { Pos = { -1766.01, 313.557 } },
 					Colors = {
 						TileColor = { R = 0.372549019607843, G = 0.6, B = 0.125490196078431 },
 						TextColor = { R = 0.725490196078431, G = 0.690196078431373, B = 0.592156862745098 },
 					}
 				},
-				multiply_luma_grain = Custom {
-					CtrlWShown = false,
+				red_luma_mask = ChannelBoolean {
 					NameSet = true,
 					Inputs = {
 						EffectMask = Input {
-							SourceOp = "PipeRouter6",
+							-- SourceOp = "dg_dot12",
 							Source = "Output",
 						},
-						LUTIn1 = Input {
-							SourceOp = "multiply_1LUTIn1",
-							Source = "Value",
-						},
-						LUTIn2 = Input {
-							SourceOp = "multiply_1LUTIn2",
-							Source = "Value",
-						},
-						LUTIn3 = Input {
-							SourceOp = "multiply_1LUTIn3",
-							Source = "Value",
-						},
-						LUTIn4 = Input {
-							SourceOp = "multiply_1LUTIn4",
-							Source = "Value",
-						},
-						RedExpression = Input { Value = "r1*n1", },
-						GreenExpression = Input { Value = "g1*n1", },
-						BlueExpression = Input { Value = "b1*n1", },
-						NumberControls = Input { Value = 1, },
-						ShowNumber2 = Input { Value = 0, },
-						ShowNumber3 = Input { Value = 0, },
-						ShowNumber4 = Input { Value = 0, },
-						ShowNumber5 = Input { Value = 0, },
-						ShowNumber6 = Input { Value = 0, },
-						ShowNumber7 = Input { Value = 0, },
-						ShowNumber8 = Input { Value = 0, },
-						ShowPoint1 = Input { Value = 0, },
-						ShowPoint2 = Input { Value = 0, },
-						ShowPoint3 = Input { Value = 0, },
-						ShowPoint4 = Input { Value = 0, },
-						Image1 = Input {
-							SourceOp = "PipeRouter2",
+						Blend = Input { Value = 1, },
+						MaskChannel = Input { Value = 0, },
+						Operation = Input { Value = 6, },
+						ToRed = Input { Value = 15, },
+						ToGreen = Input { Value = 15, },
+						ToBlue = Input { Value = 15, },
+						ToAlpha = Input { Value = 4, },
+						Background = Input {
+							SourceOp = "dg_dot3",
 							Source = "Output",
 						}
 					},
-					ViewInfo = OperatorInfo { Pos = { -1943.16, 375.536 } },
+					ViewInfo = OperatorInfo { Pos = { -1744.33, 521.71 } },
 				},
-				Effect_Mask = PipeRouter {
+				null_mask_input = BrightnessContrast {
+					PassThrough = true,
 					NameSet = true,
-					ViewInfo = PipeRouterInfo { Pos = { -3031.47, 442.108 } },
+					ViewInfo = OperatorInfo { Pos = { -2706.52, 756.813 } },
 				},
-				PipeRouter2 = PipeRouter {
-					CtrlWShown = false,
+				dg_dot3 = PipeRouter {
+					NameSet = true,
 					Inputs = {
 						Input = Input {
 							SourceOp = "subtract_luma_grain",
 							Source = "Output",
 						}
 					},
-					ViewInfo = PipeRouterInfo { Pos = { -1911.11, 2067.79 } },
+					ViewInfo = PipeRouterInfo { Pos = { -1744.33, 2382.5 } },
 				},
-				PipeRouter3 = PipeRouter {
-					CtrlWShown = false,
+				dg_dot1 = PipeRouter {
+					NameSet = true,
 					Inputs = {
 						Input = Input {
 							SourceOp = "Instance_ColorSpaceTransform2",
 							Source = "Output",
 						}
 					},
-					ViewInfo = PipeRouterInfo { Pos = { -2461.1, 2190.25 } },
+					ViewInfo = PipeRouterInfo { Pos = { -2294.32, 2504.96 } },
 				},
-				PipeRouter4 = PipeRouter {
-					CtrlWShown = false,
+				dg_dot2 = PipeRouter {
+					NameSet = true,
 					Inputs = {
 						Input = Input {
-							SourceOp = "PipeRouter3",
+							SourceOp = "dg_dot1",
 							Source = "Output",
 						}
 					},
-					ViewInfo = PipeRouterInfo { Pos = { -2437.1, 2067.79 } },
+					ViewInfo = PipeRouterInfo { Pos = { -2270.32, 2382.5 } },
 				},
-				PipeRouter5 = PipeRouter {
-					CtrlWShown = false,
+				dg_dot11 = PipeRouter {
+					NameSet = true,
 					Inputs = {
 						Input = Input {
 							SourceOp = "Instance_ColorSpaceTransform",
 							Source = "Output",
 						}
 					},
-					ViewInfo = PipeRouterInfo { Pos = { -2428.22, 1308.75 } },
+					ViewInfo = PipeRouterInfo { Pos = { -2261.44, 1623.46 } },
 				},
-				PipeRouter6 = PipeRouter {
-					CtrlWShown = false,
+				dg_dot12 = PipeRouter {
+					NameSet = true,
 					Inputs = {
 						Input = Input {
-							SourceOp = "Effect_Mask",
+							SourceOp = "null_mask_input",
 							Source = "Output",
 						}
 					},
-					ViewInfo = PipeRouterInfo { Pos = { -2012.64, 442.108 } },
+					ViewInfo = PipeRouterInfo { Pos = { -1845.86, 756.813 } },
 				},
 				exe_switch = Switch {
 					CtrlWShown = false,
@@ -2891,15 +2831,15 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 							Source = "Output",
 						},
 						Input1 = Input {
-							SourceOp = "PipeRouter7",
+							SourceOp = "dg_dot10",
 							Source = "Output",
 						},
 						Input2 = Input {
-							SourceOp = "PipeRouter8",
+							SourceOp = "dg_dot9",
 							Source = "Output",
 						}
 					},
-					ViewInfo = OperatorInfo { Pos = { 2307.17, -0.766968 } },
+					ViewInfo = OperatorInfo { Pos = { 2473.95, 313.938 } },
 					Colors = { TileColor = { R = 0.572549019607843, G = 0.572549019607843, B = 0.572549019607843 }, }
 				},
 				CopyMetadataOutput = Fuse.FLS_CopyMetadata {
@@ -2916,56 +2856,183 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 							Source = "Output",
 						}
 					},
-					ViewInfo = OperatorInfo { Pos = { 2554.17, -0.766968 } },
+					ViewInfo = OperatorInfo { Pos = { 2720.95, 313.938 } },
 				},
 				metadataswitch = Switch {
 					NameSet = true,
 					Inputs = {
-						Source = Input { Expression = "Controls.Metadata", },
 						HideInputs = Input { Value = 1, },
+						Source = Input { Expression = "Controls.Metadata", },
 						Name0 = Input { Value = "COMP", },
 						Input0 = Input {
-							SourceOp = "depth",
+							SourceOp = "depth_comp",
 							Source = "Output",
 						},
 						Name1 = Input { Value = "PLATE", },
 						Input1 = Input {
-							SourceOp = "Instance_depth",
+							SourceOp = "Instance_depth_raw",
 							Source = "Output",
 						}
 					},
-					ViewInfo = OperatorInfo { Pos = { 2554.17, 70.4297 } },
+					ViewInfo = OperatorInfo { Pos = { 2720.95, 385.135 } },
 					Colors = { TileColor = { R = 0.572549019607843, G = 0.572549019607843, B = 0.572549019607843 }, }
 				},
-				PipeRouter7 = PipeRouter {
-					CtrlWShown = false,
+				dg_dot10 = PipeRouter {
+					NameSet = true,
 					Inputs = {
 						Input = Input {
 							SourceOp = "GrainSample",
 							Source = "Output",
 						}
 					},
-					ViewInfo = PipeRouterInfo { Pos = { 2322.29, 2152.13 } },
+					ViewInfo = PipeRouterInfo { Pos = { 2489.07, 2466.84 } },
 					Colors = { TileColor = { R = 0.572549019607843, G = 0.572549019607843, B = 0.572549019607843 }, }
 				},
-				PipeRouter8 = PipeRouter {
-					CtrlWShown = false,
+				dg_dot9 = PipeRouter {
+					NameSet = true,
 					Inputs = {
 						Input = Input {
 							SourceOp = "MinMaxSample",
 							Source = "Output",
 						}
 					},
-					ViewInfo = PipeRouterInfo { Pos = { 2249.46, 1955.26 } },
+					ViewInfo = PipeRouterInfo { Pos = { 2416.24, 2269.97 } },
 					Colors = { TileColor = { R = 0.572549019607843, G = 0.572549019607843, B = 0.572549019607843 }, }
+				},
+				MASK_INPUT = Underlay {
+					NameSet = true,
+					ViewInfo = UnderlayInfo {
+						Pos = { -2669.89, 683.707 },
+						Size = { 517.423, 145.692 }
+					},
+					Colors = { TileColor = { R = 0.474509803921569, G = 0.658823529411765, B = 0.815686274509804 }, }
+				},
+				Multiplay_scgrain_edge = Custom {
+					NameSet = true,
+					Inputs = {
+						Blend = Input { Expression = "1-KeyMix.ApplyMaskInverted", },
+						ApplyMaskInverted = Input { Value = 1, },
+						LUTIn1 = Input {
+							SourceOp = "CustomTool2LUTIn1",
+							Source = "Value",
+						},
+						LUTIn2 = Input {
+							SourceOp = "CustomTool2LUTIn2",
+							Source = "Value",
+						},
+						LUTIn3 = Input {
+							SourceOp = "CustomTool2LUTIn3",
+							Source = "Value",
+						},
+						LUTIn4 = Input {
+							SourceOp = "CustomTool2LUTIn4",
+							Source = "Value",
+						},
+						RedExpression = Input { Value = "r1*1.8", },
+						GreenExpression = Input { Value = "g1*1.8", },
+						BlueExpression = Input { Value = "b1*1.8", },
+						Image1 = Input {
+							SourceOp = "STmap",
+							Source = "Output",
+						},
+						EffectMask = Input {
+							SourceOp = "dg_dot18",
+							Source = "Output",
+						}
+					},
+					ViewInfo = OperatorInfo { Pos = { 758.129, 819.24 } },
+				},
+				dg_dot18 = PipeRouter {
+					NameSet = true,
+					Inputs = {
+						Input = Input {
+							SourceOp = "dg_dot12",
+							Source = "Output",
+						}
+					},
+					ViewInfo = PipeRouterInfo { Pos = { 686.202, 746.527 } },
+				},
+				Multiplay_grain_edge = Custom {
+					CtrlWZoom = false,
+					NameSet = true,
+					Inputs = {
+						Blend = Input { Expression = "(((KeyMix.ApplyMaskInverted) > 0) or (((Controls.ReplaceG > 0) or (Controls.ExternalG > 0))  and 1 or 0)) ", },
+						LayersNest = Input { Value = 0, },
+						LUTIn1 = Input {
+							SourceOp = "Multiplay_grain_edge_1LUTIn1",
+							Source = "Value",
+						},
+						LUTIn2 = Input {
+							SourceOp = "Multiplay_grain_edge_1LUTIn2",
+							Source = "Value",
+						},
+						LUTIn3 = Input {
+							SourceOp = "Multiplay_grain_edge_1LUTIn3",
+							Source = "Value",
+						},
+						LUTIn4 = Input {
+							SourceOp = "Multiplay_grain_edge_1LUTIn4",
+							Source = "Value",
+						},
+						RedExpression = Input { Value = "r1*1.8", },
+						GreenExpression = Input { Value = "g1*1.8", },
+						BlueExpression = Input { Value = "b1*1.8", },
+						Image1 = Input {
+							SourceOp = "dg_dot16",
+							Source = "Output",
+						},
+						CommentsNest = Input { Value = 0, },
+						FrameRenderScriptNest = Input { Value = 0, },
+						EffectMask = Input {
+							SourceOp = "dg_dot18",
+							Source = "Output",
+						}
+					},
+					ViewInfo = OperatorInfo { Pos = { 650.375, 792.44 } },
+				},
+				null_comp_input = BrightnessContrast {
+					PassThrough = true,
+					NameSet = true,
+					ViewInfo = OperatorInfo { Pos = { -2836.07, 314.872 } },
+				},
+				null_raw_input = BrightnessContrast {
+					PassThrough = true,
+					NameSet = true,
+					ViewInfo = OperatorInfo { Pos = { -2822.4, 1626 } },
+				},
+				null_degrained_input = BrightnessContrast {
+					PassThrough = true,
+					NameSet = true,
+					ViewInfo = OperatorInfo { Pos = { -2846.16, 2505.9 } },
+				},
+				dg_dot19 = PipeRouter {
+					NameSet = true,
+					Inputs = {
+						Input = Input {
+							SourceOp = "dg_dot18",
+							Source = "Output",
+						}
+					},
+					ViewInfo = PipeRouterInfo { Pos = { 964.719, 746.527 } },
+				},
+				Replace = Underlay {
+					NameSet = true,
+					Inputs = {
+						Comments = Input { Value = "\n", }
+					},
+					ViewInfo = UnderlayInfo {
+						Pos = { 713.949, 748.043 },
+						Size = { 299.149, 120.894 }
+					},
 				}
 			},
 		},
 		MultiFrameRetimeSourceTime = BezierSpline {
 			SplineColor = { Red = 233, Green = 217, Blue = 243 },
 			CtrlWZoom = false,
+			NameSet = true,
 			KeyFrames = {
-				[1] = { 0, Flags = { Linear = true } }
+				[18] = { 0, Flags = { Linear = true } }
 			}
 		},
 		VectorLUTIn1 = LUTBezier {
@@ -2977,6 +3044,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			},
 			SplineColor = { Red = 0, Green = 0, Blue = 0 },
 			CtrlWZoom = false,
+			NameSet = true,
 		},
 		VectorLUTIn2 = LUTBezier {
 			KeyColorSplines = {
@@ -2987,6 +3055,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			},
 			SplineColor = { Red = 0, Green = 0, Blue = 0 },
 			CtrlWZoom = false,
+			NameSet = true,
 		},
 		VectorLUTIn3 = LUTBezier {
 			KeyColorSplines = {
@@ -2997,6 +3066,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			},
 			SplineColor = { Red = 0, Green = 0, Blue = 0 },
 			CtrlWZoom = false,
+			NameSet = true,
 		},
 		VectorLUTIn4 = LUTBezier {
 			KeyColorSplines = {
@@ -3007,6 +3077,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			},
 			SplineColor = { Red = 0, Green = 0, Blue = 0 },
 			CtrlWZoom = false,
+			NameSet = true,
 		},
 		WrapEdgesLUTIn1 = LUTBezier {
 			KeyColorSplines = {
@@ -3017,6 +3088,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			},
 			SplineColor = { Red = 0, Green = 0, Blue = 0 },
 			CtrlWZoom = false,
+			NameSet = true,
 		},
 		WrapEdgesLUTIn2 = LUTBezier {
 			KeyColorSplines = {
@@ -3027,6 +3099,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			},
 			SplineColor = { Red = 0, Green = 0, Blue = 0 },
 			CtrlWZoom = false,
+			NameSet = true,
 		},
 		WrapEdgesLUTIn3 = LUTBezier {
 			KeyColorSplines = {
@@ -3037,6 +3110,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			},
 			SplineColor = { Red = 0, Green = 0, Blue = 0 },
 			CtrlWZoom = false,
+			NameSet = true,
 		},
 		WrapEdgesLUTIn4 = LUTBezier {
 			KeyColorSplines = {
@@ -3047,6 +3121,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			},
 			SplineColor = { Red = 0, Green = 0, Blue = 0 },
 			CtrlWZoom = false,
+			NameSet = true,
 		},
 		RandPositionLUTIn1 = LUTBezier {
 			KeyColorSplines = {
@@ -3057,6 +3132,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			},
 			SplineColor = { Red = 0, Green = 0, Blue = 0 },
 			CtrlWZoom = false,
+			NameSet = true,
 		},
 		RandPositionLUTIn2 = LUTBezier {
 			KeyColorSplines = {
@@ -3067,6 +3143,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			},
 			SplineColor = { Red = 0, Green = 0, Blue = 0 },
 			CtrlWZoom = false,
+			NameSet = true,
 		},
 		RandPositionLUTIn3 = LUTBezier {
 			KeyColorSplines = {
@@ -3077,6 +3154,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			},
 			SplineColor = { Red = 0, Green = 0, Blue = 0 },
 			CtrlWZoom = false,
+			NameSet = true,
 		},
 		RandPositionLUTIn4 = LUTBezier {
 			KeyColorSplines = {
@@ -3087,6 +3165,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			},
 			SplineColor = { Red = 0, Green = 0, Blue = 0 },
 			CtrlWZoom = false,
+			NameSet = true,
 		},
 		nearestPixelLUTIn1 = LUTBezier {
 			KeyColorSplines = {
@@ -3097,6 +3176,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			},
 			SplineColor = { Red = 0, Green = 0, Blue = 0 },
 			CtrlWZoom = false,
+			NameSet = true,
 		},
 		nearestPixelLUTIn2 = LUTBezier {
 			KeyColorSplines = {
@@ -3107,6 +3187,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			},
 			SplineColor = { Red = 0, Green = 0, Blue = 0 },
 			CtrlWZoom = false,
+			NameSet = true,
 		},
 		nearestPixelLUTIn3 = LUTBezier {
 			KeyColorSplines = {
@@ -3117,6 +3198,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			},
 			SplineColor = { Red = 0, Green = 0, Blue = 0 },
 			CtrlWZoom = false,
+			NameSet = true,
 		},
 		nearestPixelLUTIn4 = LUTBezier {
 			KeyColorSplines = {
@@ -3127,6 +3209,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			},
 			SplineColor = { Red = 0, Green = 0, Blue = 0 },
 			CtrlWZoom = false,
+			NameSet = true,
 		},
 		CustomTool1LUTIn1 = LUTBezier {
 			KeyColorSplines = {
@@ -3137,6 +3220,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			},
 			SplineColor = { Red = 0, Green = 0, Blue = 0 },
 			CtrlWZoom = false,
+			NameSet = true,
 		},
 		CustomTool1LUTIn2 = LUTBezier {
 			KeyColorSplines = {
@@ -3147,6 +3231,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			},
 			SplineColor = { Red = 0, Green = 0, Blue = 0 },
 			CtrlWZoom = false,
+			NameSet = true,
 		},
 		CustomTool1LUTIn3 = LUTBezier {
 			KeyColorSplines = {
@@ -3157,6 +3242,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			},
 			SplineColor = { Red = 0, Green = 0, Blue = 0 },
 			CtrlWZoom = false,
+			NameSet = true,
 		},
 		CustomTool1LUTIn4 = LUTBezier {
 			KeyColorSplines = {
@@ -3167,6 +3253,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			},
 			SplineColor = { Red = 0, Green = 0, Blue = 0 },
 			CtrlWZoom = false,
+			NameSet = true,
 		},
 		multiplyLUTIn1 = LUTBezier {
 			KeyColorSplines = {
@@ -3176,7 +3263,6 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 				}
 			},
 			SplineColor = { Red = 204, Green = 0, Blue = 0 },
-			CtrlWZoom = false,
 		},
 		multiplyLUTIn2 = LUTBezier {
 			KeyColorSplines = {
@@ -3186,7 +3272,6 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 				}
 			},
 			SplineColor = { Red = 0, Green = 204, Blue = 0 },
-			CtrlWZoom = false,
 		},
 		multiplyLUTIn3 = LUTBezier {
 			KeyColorSplines = {
@@ -3196,7 +3281,6 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 				}
 			},
 			SplineColor = { Red = 0, Green = 0, Blue = 204 },
-			CtrlWZoom = false,
 		},
 		multiplyLUTIn4 = LUTBezier {
 			KeyColorSplines = {
@@ -3208,45 +3292,88 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			SplineColor = { Red = 204, Green = 204, Blue = 204 },
 			CtrlWZoom = false,
 		},
-		multiply_1LUTIn1 = LUTBezier {
+		CustomTool2LUTIn1 = LUTBezier {
 			KeyColorSplines = {
 				[0] = {
 					[0] = { 0, RH = { 0.333333333333333, 0.333333333333333 }, Flags = { Linear = true } },
 					[1] = { 1, LH = { 0.666666666666667, 0.666666666666667 }, Flags = { Linear = true } }
 				}
 			},
-			SplineColor = { Red = 204, Green = 0, Blue = 0 },
-			CtrlWZoom = false,
+			SplineColor = { Red = 0, Green = 0, Blue = 0 },
+			NameSet = true,
 		},
-		multiply_1LUTIn2 = LUTBezier {
+		CustomTool2LUTIn2 = LUTBezier {
 			KeyColorSplines = {
 				[0] = {
 					[0] = { 0, RH = { 0.333333333333333, 0.333333333333333 }, Flags = { Linear = true } },
 					[1] = { 1, LH = { 0.666666666666667, 0.666666666666667 }, Flags = { Linear = true } }
 				}
 			},
-			SplineColor = { Red = 0, Green = 204, Blue = 0 },
-			CtrlWZoom = false,
+			SplineColor = { Red = 0, Green = 0, Blue = 0 },
+			NameSet = true,
 		},
-		multiply_1LUTIn3 = LUTBezier {
+		CustomTool2LUTIn3 = LUTBezier {
 			KeyColorSplines = {
 				[0] = {
 					[0] = { 0, RH = { 0.333333333333333, 0.333333333333333 }, Flags = { Linear = true } },
 					[1] = { 1, LH = { 0.666666666666667, 0.666666666666667 }, Flags = { Linear = true } }
 				}
 			},
-			SplineColor = { Red = 0, Green = 0, Blue = 204 },
-			CtrlWZoom = false,
+			SplineColor = { Red = 0, Green = 0, Blue = 0 },
+			NameSet = true,
 		},
-		multiply_1LUTIn4 = LUTBezier {
+		CustomTool2LUTIn4 = LUTBezier {
 			KeyColorSplines = {
 				[0] = {
 					[0] = { 0, RH = { 0.333333333333333, 0.333333333333333 }, Flags = { Linear = true } },
 					[1] = { 1, LH = { 0.666666666666667, 0.666666666666667 }, Flags = { Linear = true } }
 				}
 			},
-			SplineColor = { Red = 204, Green = 204, Blue = 204 },
+			SplineColor = { Red = 0, Green = 0, Blue = 0 },
 			CtrlWZoom = false,
+			NameSet = true,
+		},
+		Multiplay_grain_edge_1LUTIn1 = LUTBezier {
+			KeyColorSplines = {
+				[0] = {
+					[0] = { 0, RH = { 0.333333333333333, 0.333333333333333 }, Flags = { Linear = true } },
+					[1] = { 1, LH = { 0.666666666666667, 0.666666666666667 }, Flags = { Linear = true } }
+				}
+			},
+			SplineColor = { Red = 0, Green = 0, Blue = 0 },
+			NameSet = true,
+		},
+		Multiplay_grain_edge_1LUTIn2 = LUTBezier {
+			KeyColorSplines = {
+				[0] = {
+					[0] = { 0, RH = { 0.333333333333333, 0.333333333333333 }, Flags = { Linear = true } },
+					[1] = { 1, LH = { 0.666666666666667, 0.666666666666667 }, Flags = { Linear = true } }
+				}
+			},
+			SplineColor = { Red = 0, Green = 0, Blue = 0 },
+			NameSet = true,
+		},
+		Multiplay_grain_edge_1LUTIn3 = LUTBezier {
+			KeyColorSplines = {
+				[0] = {
+					[0] = { 0, RH = { 0.333333333333333, 0.333333333333333 }, Flags = { Linear = true } },
+					[1] = { 1, LH = { 0.666666666666667, 0.666666666666667 }, Flags = { Linear = true } }
+				}
+			},
+			SplineColor = { Red = 0, Green = 0, Blue = 0 },
+			NameSet = true,
+		},
+		Multiplay_grain_edge_1LUTIn4 = LUTBezier {
+			KeyColorSplines = {
+				[0] = {
+					[0] = { 0, RH = { 0.333333333333333, 0.333333333333333 }, Flags = { Linear = true } },
+					[1] = { 1, LH = { 0.666666666666667, 0.666666666666667 }, Flags = { Linear = true } }
+				}
+			},
+			SplineColor = { Red = 0, Green = 0, Blue = 0 },
+			CtrlWZoom = false,
+			NameSet = true,
 		}
-	}
+	},
+	ActiveTool = "DasGrainFusion_V_0_80"
 }
