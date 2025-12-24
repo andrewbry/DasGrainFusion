@@ -1,8 +1,8 @@
 --[[-- 
 https://au.linkedin.com/in/andrew-buckley-6a54705b
 Written by : Andrew Buckley
-Written on : October, 2025
-version 0.81
+Written on : December, 2025
+version 0.90
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
@@ -15,9 +15,9 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 {
     Tools = ordered() {
-        DasGrainFusion_V_0_81 = MacroOperator {
+        DasGrainFusion_V_0_90 = MacroOperator {
 			Inputs = ordered() {
-				Comments = Input { Value = "DasGrain by Fabian Holtz\nFusion port by Andrew Buckley\nv0.81", },
+				Comments = Input { Value = "DasGrain by Fabian Holtz\nFusion port by Andrew Buckley\nv0.90", },
 				CompInput = InstanceInput {
 					SourceOp = "null_comp_input",
 					Source = "Input",
@@ -123,6 +123,15 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 					SourceOp = "red_luma_mask",
 					Source = "MaskChannel",
 					Default = 0,
+					Width = 0.7,
+					Page = "Controls",
+				},
+				DGMaskChk  = InstanceInput {
+					SourceOp = "Controls",
+					Source = "DegrainMaskChk",
+					Default = 0,
+					Name = "On",
+					Width = 0.3,
 					Page = "Controls",
 				},
 				LbAnalyse = InstanceInput {
@@ -174,7 +183,17 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 					SourceOp = "green_analyse_mask",
 					Source = "MaskChannel",
 					Page = "Controls",
+					KeyFramesEnabled = false,
+					Width = 0.7,
 					Default = 1,
+				},
+				AMaskChk  = InstanceInput {
+					SourceOp = "Controls",
+					Source = "AnalyseMaskChk",
+					Name = "On",
+					Width = 0.3,
+					Default = 0,
+					Page = "Controls",
 				},
 				-- replace
 				TbReplace = InstanceInput {
@@ -263,6 +282,27 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 					SourceOp = "Controls",
 					Source = "TabAdjust",
 					Page = "Controls"
+				},
+				RChannel = InstanceInput {
+					SourceOp = "GrainResponse",
+					Source = "EditRed",
+					Name = "Red",
+					Width = 0.33,
+					Page = "Controls",
+				},
+				GChannel = InstanceInput {
+					SourceOp = "GrainResponse",
+					Source = "EditGreen",
+					Name = "Green",
+					Width = 0.33,
+					Page = "Controls",
+				},
+				BChannel = InstanceInput {
+					SourceOp = "GrainResponse",
+					Source = "EditBlue",
+					Name = "Blue",
+					Width = 0.33,
+					Page = "Controls",
 				},
 				LUTRed = InstanceInput {
 					SourceOp = "GrainResponse",
@@ -965,7 +1005,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 							Value = 0,
 							Expression = "Controls.ReplaceG",
 						},
-						ApplyMaskInverted = Input { Expression = ":if DasGrainFusion_V_0_81.EffectMask then return \"0\" else return \"1\" end", },
+						ApplyMaskInverted = Input { Expression = ":if self.EffectMask then return 0 else return 1 end", },
 						Background = Input {
 							SourceOp = "Multiplay_grain_edge",
 							Source = "Output",
@@ -1459,8 +1499,8 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 							SourceOp = "dg_dot19",
 							Source = "Output",
 						},
-						Blend = Input { Value = 0, },
-						ApplyMaskInverted = Input { Value = 1, },
+						Blend = Input { Expression = "Controls.AnalyseMaskChk", },
+						ApplyMaskInverted = Input { Value = 0, },
 						MaskChannel = Input { Value = 1, },
 						Operation = Input { Value = 6, },
 						ToRed = Input { Value = 4, },
@@ -1473,6 +1513,26 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 						}
 					},
 					ViewInfo = OperatorInfo { Pos = { 996.706, 1623.46 } },
+					UserControls = ordered() {
+						MaskChannel = {
+							LINKS_Name = "Channel",
+							LINKID_DataType = "Number",
+							INPID_InputControl = "ComboControl",
+							INP_Default = 3,
+							INP_Integer = false,
+							INP_MinScale = 0,
+							INP_MaxScale = 1,
+							INP_MinAllowed = -1000000,
+							INP_MaxAllowed = 1000000,
+							INP_SplineType = "Default",
+							{ CCS_AddString = "Red" },
+							{ CCS_AddString = "Green" },
+							{ CCS_AddString = "Blue" },
+							{ CCS_AddString = "Alpha" },
+							CC_LabelPosition = "Horizontal",
+							INP_External = false,
+						}
+					},
 				},
 				dg_dot8 = PipeRouter {
 					NameSet = true,
@@ -1686,6 +1746,26 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 							LINKID_DataType = "Number",
 							LINKS_Name = "",
 						},
+						DegrainMaskChk = {
+							CBC_TriState = false,
+							INP_Integer = false,
+							INP_External = false,
+							LINKID_DataType = "Number",
+							INPID_InputControl = "CheckboxControl",
+							INP_SplineType = "Default",
+							LINKS_Name = "Use Mask",
+							ICD_Width = 0.3,
+						},
+						AnalyseMaskChk = {
+							CBC_TriState = false,
+							INP_Integer = false,
+							INP_External = false,
+							LINKID_DataType = "Number",
+							INPID_InputControl = "CheckboxControl",
+							INP_SplineType = "Default",
+							LINKS_Name = "Use Mask",
+							ICD_Width = 0.3,
+						},
 						ReplaceG = {
 							CBC_TriState = false,
 							INP_Integer = false,
@@ -1747,7 +1827,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 							BTNCS_Execute = "@scripts:/Tool/DasGrainFusion.lua",
 							INPID_InputControl = "ButtonControl",
 							INP_SplineType = "Default",
-							LINKS_Name = "Set Frame Range From Raw Plate Range",
+							LINKS_Name = "Set Alalysis Frame Range",
 						},
 						FrameRangeIn = {
 							INP_MaxAllowed = 1000000,
@@ -1862,7 +1942,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 							LINKID_DataType = "Number",
 							LBLC_DropDownButton = true,
 							INPID_InputControl = "NestControl",
-							LBLC_NumInputs = 17,
+							LBLC_NumInputs = 19,
 							INP_Passive = true,
 							INP_External = false,
 							LINKS_Name = "<p style='color:#ffffff; text-align: left; font-weight: bold;'>ANALYSE</p>",
@@ -1880,7 +1960,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 							LINKID_DataType = "Number",
 							LBLC_DropDownButton = true,
 							INPID_InputControl = "NestControl",
-							LBLC_NumInputs = 1,
+							LBLC_NumInputs = 4,
 							INP_Passive = true,
 							INP_External = false,
 							LINKS_Name = "<p style='color:#ffffff; text-align: left; font-weight: bold;'>ADJUST</p>",
@@ -2568,13 +2648,24 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 					},
 					Colors = { TileColor = { R = 0.92156862745098, G = 0.431372549019608, B = 0 }, }
 				},
+				YUVDepth_01 = ChangeDepth {
+					NameSet = true,
+					Inputs = {
+						Depth = Input { Value = 4, },
+						Input = Input {
+							SourceOp = "dg_dot11",
+							Source = "Output",
+						}
+					},
+					ViewInfo = OperatorInfo { Pos = { -2251.14, 2170.2 } },
+				},
 				toYUV = ColorSpace {
 					NameSet = true,
 					Inputs = {
 						ColorSpaceConversion = Input { Value = 1, },
 						ColorType = Input { Value = 1, },
 						Input = Input {
-							SourceOp = "dg_dot11",
+							SourceOp = "YUVDepth_01",
 							Source = "Output",
 						}
 					},
@@ -2586,11 +2677,23 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 						ColorSpaceConversion = Input { Value = 1, },
 						ColorType = Input { Value = 1, },
 						Input = Input {
-							SourceOp = "dg_dot2",
+							SourceOp = "YUVDepth_02",
 							Source = "Output",
 						}
 					},
 					ViewInfo = OperatorInfo { Pos = { -2249.8, 2244.55 } },
+				},
+				YUVDepth_02 = ChangeDepth {
+					CtrlWZoom = false,
+					NameSet = true,
+					Inputs = {
+						Depth = Input { Value = 4, },
+						Input = Input {
+							SourceOp = "dg_dot2",
+							Source = "Output",
+						}
+					},
+					ViewInfo = OperatorInfo { Pos = { -2249.8, 2313.02 } },
 				},
 				subtract_1 = ChannelBoolean {
 					NameSet = true,
@@ -2749,10 +2852,10 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 					NameSet = true,
 					Inputs = {
 						EffectMask = Input {
-							-- SourceOp = "dg_dot12",
+							SourceOp = "dg_dot12",
 							Source = "Output",
 						},
-						Blend = Input { Value = 1, },
+						Blend = Input { Expression = "Controls.DegrainMaskChk", },
 						MaskChannel = Input { Value = 0, },
 						Operation = Input { Value = 6, },
 						ToRed = Input { Value = 15, },
@@ -2765,6 +2868,26 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 						}
 					},
 					ViewInfo = OperatorInfo { Pos = { -1744.33, 521.71 } },
+					UserControls = ordered() {
+						MaskChannel = {
+							LINKS_Name = "Channel",
+							LINKID_DataType = "Number",
+							INPID_InputControl = "ComboControl",
+							INP_Default = 3,
+							INP_Integer = false,
+							INP_MinScale = 0,
+							INP_MaxScale = 1,
+							INP_MinAllowed = -1000000,
+							INP_MaxAllowed = 1000000,
+							INP_SplineType = "Default",
+							{ CCS_AddString = "Red" },
+							{ CCS_AddString = "Green" },
+							{ CCS_AddString = "Blue" },
+							{ CCS_AddString = "Alpha" },
+							CC_LabelPosition = "Horizontal",
+							INP_External = false,
+						}
+					},
 				},
 				null_mask_input = BrightnessContrast {
 					PassThrough = true,
@@ -3375,5 +3498,4 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			NameSet = true,
 		}
 	},
-	ActiveTool = "DasGrainFusion_V_0_80"
 }

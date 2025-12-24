@@ -3,7 +3,7 @@
 -- Originally created by Fabian Holtz https://www.nukepedia.com/gizmos/other/dasgrain
 -- Progress bar from https://www.steakunderwater.com/wesuckless/viewtopic.php?t=5095
 -- Adapted for Fusion by Andrew Buckley 
--- v0.80
+-- v0.90
 
 -------progress bar
 local ui = fu.UIManager
@@ -339,10 +339,14 @@ if allConnected(macro) and self.ID == "ABtn" then
 	disp:RunLoop(analyseResponse())
 	
 elseif allConnected(macro) and self.ID == "FRBtn" then
-	-- we get the second inputs output tools reader frame range
+	-- we find the minimum range of the two plate inputs for the analysis
 	local plateinput = macro:FindMainInput(2):GetConnectedOutput():GetTool()
-	macro["FRangeIn"][1] = plateinput["GlobalIn"][1]
-	macro["FRangeOut"][1] = plateinput["GlobalOut"][1]
+	local degrainedinput = macro:FindMainInput(3):GetConnectedOutput():GetTool()
+	local connectedtoolstart = math.max(math.floor(plateinput:GetAttrs().TOOLNT_Region_Start[1]),math.floor(degrainedinput:GetAttrs().TOOLNT_Region_Start[1]))
+	local connectedtoolend = math.min(math.floor(plateinput:GetAttrs().TOOLNT_Region_End[1]),math.floor(degrainedinput:GetAttrs().TOOLNT_Region_End[1]))
+
+	macro["FRangeIn"][1] = connectedtoolstart
+	macro["FRangeOut"][1] = connectedtoolend
 
 elseif self.ID == "FBtn" then
 	-- set the reference frame
